@@ -1,0 +1,38 @@
+[gd_scene format=3 uid="uid://bhcxqo6m2mqmf"]
+
+[ext_resource type="PackedScene" uid="uid://clc48k6w5qjx3" path="res://entities/ground.tscn" id="1_ybi8a"]
+[ext_resource type="PackedScene" uid="uid://c6wht77wjbxxn" path="res://entities/treeMom.tscn" id="2_23eff"]
+[ext_resource type="PackedScene" uid="uid://b8wxy6vdijjrp" path="res://entities/ratDad.tscn" id="3_m0pfx"]
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_m0pfx"]
+albedo_color = Color(0.41568628, 1, 0.1764706, 1)
+
+[sub_resource type="PlaneMesh" id="PlaneMesh_ypm76"]
+material = SubResource("StandardMaterial3D_m0pfx")
+size = Vector2(80, 80)
+
+[sub_resource type="WorldBoundaryShape3D" id="WorldBoundaryShape3D_m0pfx"]
+margin = 0.0
+plane = Plane(0, 80, 0, 8)
+
+[node name="MainScene" type="Node3D" unique_id=1329283076]
+
+[node name="roots" parent="." unique_id=1936081568 instance=ExtResource("1_ybi8a")]
+
+[node name="tree" parent="." unique_id=1385645526 instance=ExtResource("2_23eff")]
+
+[node name="rat" parent="." unique_id=1606034291 instance=ExtResource("3_m0pfx")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.029876709, -0.044714928, 1.8777709)
+
+[node name="floor" type="StaticBody3D" parent="." unique_id=1399658888]
+
+[node name="MeshInstance3D" type="MeshInstance3D" parent="floor" unique_id=1180442239]
+mesh = SubResource("PlaneMesh_ypm76")
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="floor" unique_id=1941582365]
+shape = SubResource("WorldBoundaryShape3D_m0pfx")
+
+[node name="DirectionalLight3D" type="DirectionalLight3D" parent="." unique_id=335235336]
+transform = Transform3D(-0.007235335, -0.57339054, 0.8192502, -0.0050637904, 0.8192822, 0.57336825, -0.999961, -4.6567944e-10, -0.008831311, 33.011116, 30.296818, 0)
+light_color = Color(0.79377323, 1, 0.762486, 1)
+shadow_enabled = true

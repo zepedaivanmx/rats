@@ -1,0 +1,36 @@
+[gd_scene format=3 uid="uid://b8wxy6vdijjrp"]
+
+[ext_resource type="Script" uid="uid://nq4bkxyloshl" path="res://scripts/ratDad.gd" id="1_topch"]
+
+[sub_resource type="CapsuleShape3D" id="CapsuleShape3D_dq4iu"]
+
+[sub_resource type="CapsuleMesh" id="CapsuleMesh_3xcrv"]
+
+[sub_resource type="PrismMesh" id="PrismMesh_topch"]
+size = Vector3(0.4, 0.6, 0.5)
+
+[node name="Node3D" type="Node3D" unique_id=1606034291]
+
+[node name="rata" type="CharacterBody3D" parent="." unique_id=1813152638]
+transform = Transform3D(1, 0, 0, 0, 0.048483744, 0.998824, 0, -0.998824, 0.048483744, 0, 0.84490454, 0)
+script = ExtResource("1_topch")
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="rata" unique_id=1689452503]
+shape = SubResource("CapsuleShape3D_dq4iu")
+
+[node name="body" type="MeshInstance3D" parent="rata" unique_id=2114784846]
+mesh = SubResource("CapsuleMesh_3xcrv")
+
+[node name="MeshInstance3D" type="MeshInstance3D" parent="rata/body" unique_id=861910448]
+transform = Transform3D(0.013854627, 0.033445515, 0.99934465, -0.1970667, -0.9797472, 0.035521742, 0.9802931, -0.19742982, -0.00698301, 0, -1.2157701, 0.23241222)
+mesh = SubResource("PrismMesh_topch")
+
+[node name="CameraPivote" type="Node3D" parent="rata" unique_id=791730854]
+
+[node name="SpringArm3D" type="SpringArm3D" parent="rata/CameraPivote" unique_id=1637591541]
+transform = Transform3D(1, 0, 0, 0, 0.83600867, -0.5487165, 0, 0.5487165, 0.83600867, 0, 0, 0)
+spring_length = 4.0
+margin = 1.0
+
+[node name="Camera3D" type="Camera3D" parent="rata/CameraPivote/SpringArm3D" unique_id=1991159007]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.1977539, 4.073971)

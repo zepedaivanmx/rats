@@ -1,0 +1,35 @@
+[gd_scene format=3 uid="uid://crkdy0oyim1gd"]
+
+[ext_resource type="Script" uid="uid://ckcx4f6ucmk8w" path="res://scripts/main_menu.gd" id="1_he48d"]
+[ext_resource type="PackedScene" uid="uid://c6wht77wjbxxn" path="res://entities/treeMom.tscn" id="1_texeb"]
+
+[sub_resource type="Sky" id="Sky_he48d"]
+
+[sub_resource type="Environment" id="Environment_mknkd"]
+background_mode = 2
+sky = SubResource("Sky_he48d")
+ambient_light_source = 2
+ambient_light_color = Color(0, 1, 0, 1)
+
+[node name="Node3D" type="Node3D" unique_id=1300891548]
+script = ExtResource("1_he48d")
+
+[node name="CanvasLayer" type="CanvasLayer" parent="." unique_id=11817318]
+
+[node name="playButton" type="Button" parent="CanvasLayer" unique_id=1945312063]
+offset_left = 422.0
+offset_top = 262.0
+offset_right = 827.0
+offset_bottom = 583.0
+action_mode = 0
+text = "Play"
+
+[node name="WorldEnvironment" type="WorldEnvironment" parent="." unique_id=1325556768]
+environment = SubResource("Environment_mknkd")
+
+[node name="Camera3D" type="Camera3D" parent="." unique_id=749988094]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.033631206, 0.5196018, 6.4156647)
+
+[node name="Node3D" parent="." unique_id=1385645526 instance=ExtResource("1_texeb")]
+
+[connection signal="pressed" from="CanvasLayer/playButton" to="." method="_on_play_button_pressed"]
