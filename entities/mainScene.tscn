@@ -53,5 +53,4 @@ script = ExtResource("4_ypm76")
 enemy_scene = ExtResource("5_benjh")
 
 [node name="Timer" type="Timer" parent="Spawner" unique_id=935394530]
-wait_time = 4.0
 autostart = true

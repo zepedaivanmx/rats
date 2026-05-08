@@ -6,7 +6,7 @@
 
 [sub_resource type="BoxMesh" id="BoxMesh_p4kmr"]
 
-[node name="ForestAnimal" type="Node3D" unique_id=1361003490]
+[node name="ForestAnimal" type="Node3D" unique_id=1361003490 groups=["enemy"]]
 
 [node name="CharacterBody3D" type="CharacterBody3D" parent="." unique_id=630647152]
 script = ExtResource("1_p4kmr")

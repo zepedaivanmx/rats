@@ -4,7 +4,7 @@ extends Node3D
 @export var enemy_scene: PackedScene
 
 # 2. Configuración del área de aparición
-@export var spawn_radius: float = 25.0 # Distancia desde el centro (árbol)
+@export var spawn_radius: float = 12.0 # Distancia desde el centro (árbol)
 @export var spawn_container: Node3D # Nodo donde se guardarán los enemigos para tener orden
 
 @onready var timer = $Timer

@@ -9,7 +9,10 @@
 [sub_resource type="PrismMesh" id="PrismMesh_topch"]
 size = Vector3(0.4, 0.6, 0.5)
 
-[node name="Node3D" type="Node3D" unique_id=1606034291]
+[sub_resource type="SphereShape3D" id="SphereShape3D_topch"]
+radius = 4.0
+
+[node name="rat" type="Node3D" unique_id=1606034291 groups=["rats"]]
 
 [node name="rata" type="CharacterBody3D" parent="." unique_id=1813152638]
 transform = Transform3D(1, 0, 0, 0, 0.048483744, 0.998824, 0, -0.998824, 0.048483744, 0, 0.84490454, 0)
@@ -27,10 +30,29 @@ mesh = SubResource("PrismMesh_topch")
 
 [node name="CameraPivote" type="Node3D" parent="rata" unique_id=791730854]
 
-[node name="SpringArm3D" type="SpringArm3D" parent="rata/CameraPivote" unique_id=1637591541 groups=["CentralTree"]]
+[node name="SpringArm3D" type="SpringArm3D" parent="rata/CameraPivote" unique_id=1637591541 groups=["CentralTree", "rats"]]
 transform = Transform3D(1, 0, 0, 0, 0.83600867, -0.5487165, 0, 0.5487165, 0.83600867, 0, 0, 0)
 spring_length = 10.0
 margin = 1.0
 
 [node name="Camera3D" type="Camera3D" parent="rata/CameraPivote/SpringArm3D" unique_id=1991159007]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.1977539, 4.073971)
+
+[node name="tailArea" type="Area3D" parent="rata" unique_id=1812772805]
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="rata/tailArea" unique_id=1133337448]
+shape = SubResource("SphereShape3D_topch")
+
+[node name="biteArea" type="Area3D" parent="rata" unique_id=696643897]
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="rata/biteArea" unique_id=1859251052]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -1.4505523, 0.07041103)
+shape = SubResource("SphereShape3D_topch")
+
+[node name="auraArea" type="Area3D" parent="rata" unique_id=1862143792]
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="rata/auraArea" unique_id=912346102]
+shape = SubResource("SphereShape3D_topch")
+
+[connection signal="body_entered" from="rata/auraArea" to="rata" method="_on_aura_area_body_entered"]
+[connection signal="body_exited" from="rata/auraArea" to="rata" method="_on_aura_area_body_exited"]
