@@ -1,5 +1,40 @@
 extends CharacterBody3D
 
+@onready var area_mordida = $AreaMordida
+@onready var area_colazo = $AreaColazo
+
+func _input(event):
+	# Mordida (Ejemplo: Click izquierdo)
+	if event.is_action_pressed("ataque_primario"):
+		ejecutar_mordida()
+	
+	# Colazo (Ejemplo: Click derecho o Tecla E)
+	if event.is_action_pressed("ataque_secundario"):
+		ejecutar_colazo()
+
+func ejecutar_mordida():
+	for body in area_mordida.get_overlapping_bodies():
+		if body.has_method("desaparecer"):
+			body.desaparecer()
+
+func ejecutar_colazo():
+	for body in area_colazo.get_overlapping_bodies():
+		if body is CharacterBody3D:
+			# Calculamos la dirección opuesta a la rata
+			var empuje = (body.global_position - global_position).normalized() * 15.0
+			if body.has_method("recibir_impacto"):
+				body.recibir_impacto(empuje)
+
+# Lógica del Aura (Conecta las señales body_entered y body_exited del AreaAura)
+func _on_area_aura_body_entered(body):
+	if body.is_in_group("asimilados"):
+		body.speed = body.base_speed * 0.5 # Reduce velocidad al 50%
+
+func _on_area_aura_body_exited(body):
+	if body.is_in_group("asimilados"):
+		body.speed = body.base_speed
+		
+		
 const SPEED = 5.0
 const JUMP_VELOCITY = 4.5
 
@@ -42,3 +77,5 @@ func _physics_process(delta: float) -> void:
 
 	# Función interna de Godot que procesa colisiones y movimiento
 	move_and_slide()
+	
+	

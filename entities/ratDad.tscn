@@ -27,9 +27,9 @@ mesh = SubResource("PrismMesh_topch")
 
 [node name="CameraPivote" type="Node3D" parent="rata" unique_id=791730854]
 
-[node name="SpringArm3D" type="SpringArm3D" parent="rata/CameraPivote" unique_id=1637591541]
+[node name="SpringArm3D" type="SpringArm3D" parent="rata/CameraPivote" unique_id=1637591541 groups=["CentralTree"]]
 transform = Transform3D(1, 0, 0, 0, 0.83600867, -0.5487165, 0, 0.5487165, 0.83600867, 0, 0, 0)
-spring_length = 4.0
+spring_length = 10.0
 margin = 1.0
 
 [node name="Camera3D" type="Camera3D" parent="rata/CameraPivote/SpringArm3D" unique_id=1991159007]

@@ -1,0 +1,21 @@
+[gd_scene format=3 uid="uid://bnl7aytrlj4jv"]
+
+[ext_resource type="Script" uid="uid://cj7ndrfejwjds" path="res://scripts/forestAnimal.gd" id="1_p4kmr"]
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_2svxr"]
+
+[sub_resource type="BoxMesh" id="BoxMesh_p4kmr"]
+
+[node name="ForestAnimal" type="Node3D" unique_id=1361003490]
+
+[node name="CharacterBody3D" type="CharacterBody3D" parent="." unique_id=630647152]
+script = ExtResource("1_p4kmr")
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="CharacterBody3D" unique_id=28214412]
+shape = SubResource("BoxShape3D_2svxr")
+
+[node name="MeshInstance3D" type="MeshInstance3D" parent="CharacterBody3D" unique_id=1651834198]
+transform = Transform3D(0.9999963, 0.0023163417, -0.0014112494, -0.002313091, 0.99999464, 0.0023081114, 0.0014165712, -0.002304849, 0.9999963, 0, 0, 0)
+mesh = SubResource("BoxMesh_p4kmr")
+
+[node name="NavigationAgent3D" type="NavigationAgent3D" parent="CharacterBody3D" unique_id=974145234]
