@@ -2,6 +2,7 @@ extends CharacterBody3D
 
 @export var speed: float = 6.0
 @export var fuerza_arrastre: float = 5.5 # Velocidad con la que se lleva a la rata
+var base_speed: float = 0.0 # <--- ¡NUEVA VARIABLE PARA EVITAR EL ERROR!
 @onready var nav_agent: NavigationAgent3D = $NavigationAgent3D
 
 var arbol_objetivo: Node3D 
@@ -13,6 +14,7 @@ var empuje_recibido: Vector3 = Vector3.ZERO
 var gravity: float = ProjectSettings.get_setting("physics/3d/default_gravity")
 
 func _ready() -> void:
+	base_speed = speed # <--- Guardamos su velocidad original al nacer
 	await get_tree().physics_frame
 	arbol_objetivo = get_tree().get_first_node_in_group("CentralTree")
 	rata_objetivo = get_tree().get_first_node_in_group("rats") # Buscamos a la rata

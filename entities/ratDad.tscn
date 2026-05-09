@@ -43,15 +43,15 @@ transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.1977539, 4.073971)
 [node name="CollisionShape3D" type="CollisionShape3D" parent="rata/tailArea" unique_id=1133337448]
 shape = SubResource("SphereShape3D_topch")
 
+[node name="auraArea" type="Area3D" parent="rata" unique_id=1862143792]
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="rata/auraArea" unique_id=912346102]
+shape = SubResource("SphereShape3D_topch")
+
 [node name="biteArea" type="Area3D" parent="rata" unique_id=696643897]
 
 [node name="CollisionShape3D" type="CollisionShape3D" parent="rata/biteArea" unique_id=1859251052]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -1.4505523, 0.07041103)
-shape = SubResource("SphereShape3D_topch")
-
-[node name="auraArea" type="Area3D" parent="rata" unique_id=1862143792]
-
-[node name="CollisionShape3D" type="CollisionShape3D" parent="rata/auraArea" unique_id=912346102]
 shape = SubResource("SphereShape3D_topch")
 
 [connection signal="body_entered" from="rata/auraArea" to="rata" method="_on_aura_area_body_entered"]

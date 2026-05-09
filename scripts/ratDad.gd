@@ -65,28 +65,47 @@ func _physics_process(delta: float) -> void:
 		ejecutar_colazo()
 		cooldown_colazo = tiempo_colazo
 		
+# --- RUTINA DE ATAQUES AUTOMÁTICOS MEJORADA ---
+	# (Pon esto dentro de tu _physics_process)
+	
+	if cooldown_mordida > 0:
+		cooldown_mordida -= delta
+	else:
+		# Intenta morder. Si lo logra, entonces inicia el cooldown.
+		if ejecutar_mordida():
+			cooldown_mordida = tiempo_mordida
+
+	if cooldown_colazo > 0:
+		cooldown_colazo -= delta
+	else:
+		# Intenta dar el colazo. Si golpea a alguien, inicia el cooldown.
+		if ejecutar_colazo():
+			cooldown_colazo = tiempo_colazo
+
 
 # --- LÓGICA DE ATAQUES MODIFICADA ---
-func ejecutar_mordida():
-	# Desaparece de uno en uno usando 'break' para detener el ciclo tras el primer impacto
+# Devuelven un 'bool' para avisar si impactaron a alguien
+func ejecutar_mordida() -> bool:
 	for body in area_mordida.get_overlapping_bodies():
 		if body.has_method("desaparecer"):
 			body.desaparecer()
-			break 
+			romper_arrastre() # <--- NUEVO: Nos liberamos del arrastre al morder
+			return true # ¡Éxito, mordimos a uno!
+	return false # No encontró a nadie, seguirá intentando cada fotograma
 
-func ejecutar_colazo():
+func ejecutar_colazo() -> bool:
 	var acerto_golpe = false
 	for body in area_colazo.get_overlapping_bodies():
-		if body is CharacterBody3D:
+		# Añadimos "body != self" por seguridad para que la rata no se intente pegar a sí misma
+		if body is CharacterBody3D and body.has_method("recibir_impacto") and body != self:
 			var empuje = (body.global_position - global_position).normalized() * 15.0
-			
-			if body.has_method("recibir_impacto"):
-				body.recibir_impacto(empuje)
-				acerto_golpe = true
+			body.recibir_impacto(empuje)
+			acerto_golpe = true
 	
-	# Si golpeamos a alguien, nos liberamos del arrastre
 	if acerto_golpe:
 		romper_arrastre()
+	
+	return acerto_golpe
 
 # --- MÉTODOS DE CONTROL DE ARRASTRE ---
 func aplicar_arrastre(fuerza: Vector3):
@@ -98,10 +117,11 @@ func romper_arrastre():
 
 
 func _on_aura_area_body_entered(body: Node3D) -> void:
-	if body.is_in_group("enemy"):
-		body.speed = body.base_speed * 0.5 
+	# Dejamos esto vacío con "pass" para no alterar la velocidad enemiga
+	# Opcionalmente, puedes eliminar esta función y desconectar la señal si no la usarás para nada más
+	pass
 
 
 func _on_aura_area_body_exited(body: Node3D) -> void:
 	if body.is_in_group("enemy"):
-		body.speed = body.base_speed
+		romper_arrastre() # <--- NUEVO: Si el enemigo se aleja, nos suelta
