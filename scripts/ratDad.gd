@@ -10,12 +10,22 @@ var gravity: float = ProjectSettings.get_setting("physics/3d/default_gravity")
 @onready var area_colazo = $tailArea
 @onready var area_contacto = $auraArea
 
+# --- VARIABLES DE GAME OVER ---
+var arbol_central: Node3D
+@export var limite_bosque: float = 25.0 # Distancia fatal. Ajusta este número según el tamaño de tu terreno
+
 # --- VARIABLES DE ARRASTRE Y ATAQUES ---
 var vector_arrastre: Vector3 = Vector3.ZERO
 var cooldown_mordida: float = 0.0
 var cooldown_colazo: float = 0.0
 var tiempo_mordida: float = 12.0
 var tiempo_colazo: float = 6.0
+
+
+func _ready() -> void:
+	# Buscamos el árbol de protección apenas nace la rata
+	await get_tree().physics_frame
+	arbol_central = get_tree().get_first_node_in_group("CentralTree")
 
 func _physics_process(delta: float) -> void:
 	# 1. Aplicar Gravedad
@@ -81,6 +91,11 @@ func _physics_process(delta: float) -> void:
 		# Intenta dar el colazo. Si golpea a alguien, inicia el cooldown.
 		if ejecutar_colazo():
 			cooldown_colazo = tiempo_colazo
+	# --- CONDICIÓN DE GAME OVER: EL BOSQUE PROFUNDO ---
+	if arbol_central:
+		var distancia_al_arbol = global_position.distance_to(arbol_central.global_position)
+		if distancia_al_arbol > limite_bosque:
+			activar_game_over()
 
 
 # --- LÓGICA DE ATAQUES MODIFICADA ---
@@ -114,7 +129,12 @@ func aplicar_arrastre(fuerza: Vector3):
 func romper_arrastre():
 	vector_arrastre = Vector3.ZERO
 
-
+func activar_game_over() -> void:
+	print("¡El bosque profundo te ha consumido!")
+	# Opción A: Reiniciar la partida inmediatamente (Estilo Roguelike rápido)
+	get_tree().reload_current_scene()
+	# Opción B: Mandarlo al menú principal (Descomenta la línea de abajo si lo prefieres)
+	#get_tree().change_scene_to_file("res://entities/mainMenu.tscn")
 
 func _on_aura_area_body_entered(body: Node3D) -> void:
 	# Dejamos esto vacío con "pass" para no alterar la velocidad enemiga

@@ -17,6 +17,7 @@ radius = 4.0
 [node name="rata" type="CharacterBody3D" parent="." unique_id=1813152638 groups=["rats"]]
 transform = Transform3D(1, 0, 0, 0, 0.048483744, 0.998824, 0, -0.998824, 0.048483744, 0, 0.84490454, 0)
 script = ExtResource("1_topch")
+limite_bosque = 55.0
 
 [node name="CollisionShape3D" type="CollisionShape3D" parent="rata" unique_id=1689452503]
 shape = SubResource("CapsuleShape3D_dq4iu")
