@@ -12,9 +12,9 @@ size = Vector3(0.4, 0.6, 0.5)
 [sub_resource type="SphereShape3D" id="SphereShape3D_topch"]
 radius = 4.0
 
-[node name="rat" type="Node3D" unique_id=1606034291 groups=["rats"]]
+[node name="rat" type="Node3D" unique_id=1606034291]
 
-[node name="rata" type="CharacterBody3D" parent="." unique_id=1813152638]
+[node name="rata" type="CharacterBody3D" parent="." unique_id=1813152638 groups=["rats"]]
 transform = Transform3D(1, 0, 0, 0, 0.048483744, 0.998824, 0, -0.998824, 0.048483744, 0, 0.84490454, 0)
 script = ExtResource("1_topch")
 
@@ -30,7 +30,7 @@ mesh = SubResource("PrismMesh_topch")
 
 [node name="CameraPivote" type="Node3D" parent="rata" unique_id=791730854]
 
-[node name="SpringArm3D" type="SpringArm3D" parent="rata/CameraPivote" unique_id=1637591541 groups=["CentralTree", "rats"]]
+[node name="SpringArm3D" type="SpringArm3D" parent="rata/CameraPivote" unique_id=1637591541]
 transform = Transform3D(1, 0, 0, 0, 0.83600867, -0.5487165, 0, 0.5487165, 0.83600867, 0, 0, 0)
 spring_length = 10.0
 margin = 1.0

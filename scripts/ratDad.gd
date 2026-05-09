@@ -10,41 +10,47 @@ var gravity: float = ProjectSettings.get_setting("physics/3d/default_gravity")
 @onready var area_colazo = $tailArea
 @onready var area_contacto = $auraArea
 
-
-# --- VARIABLES NUEVAS: ARRASTRE Y ATAQUES ---
+# --- VARIABLES DE ARRASTRE Y ATAQUES ---
 var vector_arrastre: Vector3 = Vector3.ZERO
 var cooldown_mordida: float = 0.0
 var cooldown_colazo: float = 0.0
-var tiempo_mordida: float = 12.0 # Muerde cada 1 segundo (ajustable)
-var tiempo_colazo: float = 6.0  # Da un colazo cada 3 segundos (ajustable)
+var tiempo_mordida: float = 12.0
+var tiempo_colazo: float = 6.0
 
 func _physics_process(delta: float) -> void:
 	# 1. Aplicar Gravedad
 	if not is_on_floor():
 		velocity.y -= gravity * delta
 
-	# --- CRÍTICO: ANULAR INPUT SI ESTAMOS SIENDO ARRASTRADOS ---
-	if vector_arrastre != Vector3.ZERO:
-		velocity.x = vector_arrastre.x
-		velocity.z = vector_arrastre.z
+	# 2. Mecánica de Salto
+	if Input.is_action_just_pressed("ui_accept") and is_on_floor():
+		velocity.y = JUMP_VELOCITY
+
+	# 3. Obtener el vector de entrada (Input en 8 direcciones)
+	var input_dir := Input.get_vector("ui_left", "ui_right", "ui_up", "ui_down")
+	var direction := (Vector3(input_dir.x, 0, input_dir.y)).normalized()
+
+	# 4. Calcular velocidad de movimiento base por Input
+	var target_velocity_x = 0.0
+	var target_velocity_z = 0.0
+
+	if direction:
+		target_velocity_x = direction.x * SPEED
+		target_velocity_z = direction.z * SPEED
+		
+		# --- ROTACIÓN INDEPENDIENTE DEL ARRASTRE ---
+		# La rotación visual SOLO responde a la dirección del input
+		var target_rotation = atan2(direction.x, direction.z)
+		visual_mesh.rotation.z = lerp_angle(visual_mesh.rotation.z, target_rotation, 15 * delta)
 	else:
-		# 2. Mecánica de Salto (solo si no nos arrastran)
-		if Input.is_action_just_pressed("ui_accept") and is_on_floor():
-			velocity.y = JUMP_VELOCITY
+		# Si el jugador no presiona nada, la velocidad de input tiende a cero
+		target_velocity_x = move_toward(velocity.x - vector_arrastre.x, 0, SPEED)
+		target_velocity_z = move_toward(velocity.z - vector_arrastre.z, 0, SPEED)
 
-		# 3. Obtener el vector de entrada (Input)
-		var input_dir := Input.get_vector("ui_left", "ui_right", "ui_up", "ui_down")
-		var direction := (Vector3(input_dir.x, 0, input_dir.y)).normalized()
-
-		# 4. Aplicar Movimiento y Rotación Visual
-		if direction:
-			velocity.x = direction.x * SPEED
-			velocity.z = direction.z * SPEED
-			var target_rotation = atan2(direction.x, direction.z)
-			visual_mesh.rotation.z = lerp_angle(visual_mesh.rotation.z, target_rotation, 15 * delta)
-		else:
-			velocity.x = move_toward(velocity.x, 0, SPEED)
-			velocity.z = move_toward(velocity.z, 0, SPEED)
+	# 5. --- LA MAGIA: SUMAR EL ARRASTRE AL INPUT ---
+	# La velocidad final es lo que el jugador intenta moverse + la fuerza centrífuga que le aplican
+	velocity.x = target_velocity_x + vector_arrastre.x
+	velocity.z = target_velocity_z + vector_arrastre.z
 
 	move_and_slide()
 
@@ -58,7 +64,6 @@ func _physics_process(delta: float) -> void:
 	if cooldown_colazo <= 0:
 		ejecutar_colazo()
 		cooldown_colazo = tiempo_colazo
-		
 		
 
 # --- LÓGICA DE ATAQUES MODIFICADA ---

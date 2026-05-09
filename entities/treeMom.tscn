@@ -15,7 +15,7 @@ height = 10.04715
 [sub_resource type="BoxShape3D" id="BoxShape3D_knkve"]
 size = Vector3(14.0529785, 1, 13.982544)
 
-[node name="Node3D" type="Node3D" unique_id=1385645526]
+[node name="Node3D" type="Node3D" unique_id=1385645526 groups=["CentralTree"]]
 
 [node name="StaticBody3D" type="StaticBody3D" parent="." unique_id=1995368004]
 physics_material_override = SubResource("PhysicsMaterial_a34xc")

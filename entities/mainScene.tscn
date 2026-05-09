@@ -44,9 +44,9 @@ mesh = SubResource("PlaneMesh_ypm76")
 [node name="CollisionShape3D" type="CollisionShape3D" parent="Navigation/NavigationRegion3D/floor" unique_id=1941582365]
 shape = SubResource("WorldBoundaryShape3D_m0pfx")
 
-[node name="tree" parent="Navigation/NavigationRegion3D" unique_id=1385645526 groups=["CentralTree"] instance=ExtResource("2_23eff")]
+[node name="tree" parent="Navigation/NavigationRegion3D" unique_id=1385645526 instance=ExtResource("2_23eff")]
 
-[node name="roots" parent="Navigation/NavigationRegion3D/tree" unique_id=1936081568 groups=["CentralTree"] instance=ExtResource("1_ybi8a")]
+[node name="roots" parent="Navigation/NavigationRegion3D/tree" unique_id=1936081568 instance=ExtResource("1_ybi8a")]
 
 [node name="Spawner" type="Node3D" parent="." unique_id=1924398484]
 script = ExtResource("4_ypm76")
