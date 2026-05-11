@@ -20,6 +20,8 @@ config/icon="res://icon.svg"
 CentralTree="Central milestone: Tree"
 rats=""
 enemy=""
+serpiente=""
+mineral=""
 
 [physics]
 

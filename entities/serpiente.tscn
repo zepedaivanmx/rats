@@ -1,0 +1,22 @@
+[gd_scene format=3 uid="uid://dqieggpnnvqof"]
+
+[ext_resource type="Script" uid="uid://b30llcunr430c" path="res://scripts/serpiente.gd" id="1_hrrjd"]
+
+[sub_resource type="PrismMesh" id="PrismMesh_u4lmg"]
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_hrrjd"]
+
+[node name="serpiente" type="Node3D" unique_id=391623062]
+
+[node name="CharacterBody3D" type="CharacterBody3D" parent="." unique_id=290751030 groups=["serpiente"]]
+script = ExtResource("1_hrrjd")
+
+[node name="MeshInstance3D" type="MeshInstance3D" parent="CharacterBody3D" unique_id=1354325659]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.45324337, 0, 0)
+mesh = SubResource("PrismMesh_u4lmg")
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="CharacterBody3D" unique_id=1584650602]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.46739483, 0, 0)
+shape = SubResource("BoxShape3D_hrrjd")
+
+[node name="NavigationAgent3D" type="NavigationAgent3D" parent="CharacterBody3D" unique_id=1667268175]

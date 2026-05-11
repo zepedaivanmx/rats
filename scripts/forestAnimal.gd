@@ -8,6 +8,12 @@ var base_speed: float = 0.0 # <--- ¡NUEVA VARIABLE PARA EVITAR EL ERROR!
 var arbol_objetivo: Node3D 
 var rata_objetivo: Node3D # Nueva referencia
 
+# --- SISTEMA DE SALUD Y ESTADOS ---
+var hp: float = 100.0
+var esta_envenenado: bool = false
+var esta_sangrando: bool = false
+var timer_efectos: float = 0.0
+
 # --- VARIABLES NUEVAS DE ESTADO ---
 var arrastrando_rata: bool = false
 var empuje_recibido: Vector3 = Vector3.ZERO
@@ -71,6 +77,15 @@ func _physics_process(delta: float) -> void:
 			velocity.x = direction.x * speed
 			velocity.z = direction.z * speed
 
+# --- PROCESAR ESTADOS ALTERADOS (VENENO/SANGRADO) ---
+	timer_efectos += delta
+	if timer_efectos >= 1.0: # Cada 1 segundo hace un "tick" de daño
+		if esta_envenenado:
+			recibir_dano(5.0) # El veneno quita poco pero es constante
+		if esta_sangrando and velocity.length() > 0.5:
+			recibir_dano(10.0) # El sangrado duele más si el enemigo intenta moverse
+		timer_efectos = 0.0
+		
 	# 5. Finalmente, mover al enemigo usando la velocidad calculada
 	move_and_slide()
 
@@ -83,3 +98,14 @@ func desaparecer():
 	if arrastrando_rata and rata_objetivo and rata_objetivo.has_method("romper_arrastre"):
 		rata_objetivo.romper_arrastre()
 	queue_free()
+func recibir_dano(cantidad: float):
+	hp -= cantidad
+	if hp <= 0:
+		desaparecer()
+
+func aplicar_veneno():
+	esta_envenenado = true
+	# Opcional: Cambiar el color del enemigo a verde aquí
+
+func aplicar_sangrado():
+	esta_sangrando = true

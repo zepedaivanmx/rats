@@ -1,0 +1,18 @@
+[gd_scene format=3 uid="uid://htkqfdtfsmm4"]
+
+[ext_resource type="Script" uid="uid://vdi6jnvcb10j" path="res://scripts/mineral.gd" id="1_poga0"]
+
+[sub_resource type="PrismMesh" id="PrismMesh_avbxd"]
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_poga0"]
+
+[node name="mineral" type="Node3D" unique_id=454837677]
+
+[node name="CharacterBody3D" type="CharacterBody3D" parent="." unique_id=47277051 groups=["mineral"]]
+script = ExtResource("1_poga0")
+
+[node name="MeshInstance3D" type="MeshInstance3D" parent="CharacterBody3D" unique_id=492015387]
+mesh = SubResource("PrismMesh_avbxd")
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="CharacterBody3D" unique_id=1314835887]
+shape = SubResource("BoxShape3D_poga0")

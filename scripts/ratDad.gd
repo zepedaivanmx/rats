@@ -10,6 +10,12 @@ var gravity: float = ProjectSettings.get_setting("physics/3d/default_gravity")
 @onready var area_colazo = $tailArea
 @onready var area_contacto = $auraArea
 
+# --- VARIABLES DE POWER UPS ---
+# ---  (COLA) ---
+var cola_afilada: bool = false
+var cola_venenosa: bool = false
+var cola_pesada: bool = false # Representa la "Piedra"
+
 # --- VARIABLES DE GAME OVER ---
 var arbol_central: Node3D
 @export var limite_bosque: float = 25.0 # Distancia fatal. Ajusta este número según el tamaño de tu terreno
@@ -101,25 +107,121 @@ func _physics_process(delta: float) -> void:
 # --- LÓGICA DE ATAQUES MODIFICADA ---
 # Devuelven un 'bool' para avisar si impactaron a alguien
 func ejecutar_mordida() -> bool:
+	var mordio_algo = false
+	
 	for body in area_mordida.get_overlapping_bodies():
-		if body.has_method("desaparecer"):
+		if body == self:
+			continue # Ignorarnos a nosotros mismos
+			
+		# Obtenemos todas las etiquetas (grupos) del objeto
+		var grupos = body.get_groups()
+		var es_objeto_especial = false
+		
+		# Evaluamos usando match (switch) sobre los nombres de los grupos
+		for grupo in grupos:
+			match String(grupo): # Forzamos a String por seguridad
+				
+				"CentralTree":
+					if not cola_afilada:
+						cola_afilada = true
+						print("¡Obtuviste: Cola Afilada (Huesos/Madera)!")
+					es_objeto_especial = true
+					
+				"serpiente":
+					if not cola_venenosa:
+						cola_venenosa = true
+						print("¡Obtuviste: Cola Venenosa!")
+					if body.has_method("desaparecer"):
+						body.desaparecer()
+					else:
+						body.queue_free()
+					es_objeto_especial = true
+					
+				"mineral":
+					if not cola_pesada:
+						cola_pesada = true
+						print("¡Obtuviste: Cola Pesada (Piedra)!")
+					if body.has_method("desaparecer"):
+						body.desaparecer()
+					else:
+						body.queue_free()
+					es_objeto_especial = true
+
+		# 1. Si el match encontró un power up, validamos la mordida
+		if es_objeto_especial:
+			mordio_algo = true
+			
+		# 2. Si no fue un power up, pero es un enemigo normal
+		elif body.has_method("desaparecer"):
 			body.desaparecer()
-			romper_arrastre() # <--- NUEVO: Nos liberamos del arrastre al morder
-			return true # ¡Éxito, mordimos a uno!
-	return false # No encontró a nadie, seguirá intentando cada fotograma
+			mordio_algo = true
+
+		# Si logramos morder CUALQUIER cosa, nos liberamos y terminamos
+		if mordio_algo:
+			romper_arrastre()
+			return true 
+			
+	return false # No mordimos nada
 
 func ejecutar_colazo() -> bool:
 	var acerto_golpe = false
-	for body in area_colazo.get_overlapping_bodies():
-		# Añadimos "body != self" por seguridad para que la rata no se intente pegar a sí misma
-		if body is CharacterBody3D and body.has_method("recibir_impacto") and body != self:
-			var empuje = (body.global_position - global_position).normalized() * 15.0
-			body.recibir_impacto(empuje)
-			acerto_golpe = true
 	
+	for body in area_colazo.get_overlapping_bodies():
+		if body is CharacterBody3D and body != self:
+			
+			# Valores por defecto del ataque
+			var fuerza_base = 15.0
+			var aplicar_sangrado = false
+			var aplicar_veneno = false
+			
+			# Evaluamos todas las combinaciones posibles usando un arreglo: [Afilada, Venenosa, Pesada]
+			match [cola_afilada, cola_venenosa, cola_pesada]:
+				
+				[false, false, false]: 
+					pass # Cola normal, usamos los valores por defecto
+					
+				[true, false, false]: # SOLO AFILADA
+					aplicar_sangrado = true
+					
+				[false, true, false]: # SOLO VENENOSA
+					aplicar_veneno = true
+					
+				[false, false, true]: # SOLO PESADA
+					fuerza_base = 30.0 # Doble de empuje
+					
+				[true, true, false]: # AFILADA + VENENOSA
+					aplicar_sangrado = true
+					aplicar_veneno = true
+					# Aquí podrías poner lógica extra exclusiva de esta combinación
+					
+				[true, false, true]: # AFILADA + PESADA
+					fuerza_base = 30.0
+					aplicar_sangrado = true
+					
+				[false, true, true]: # VENENOSA + PESADA
+					fuerza_base = 30.0
+					aplicar_veneno = true
+					
+				[true, true, true]: # ¡LAS TRES JUNTAS!
+					fuerza_base = 40.0 # Un bonus extra por tener las tres
+					aplicar_sangrado = true
+					aplicar_veneno = true
+
+			# --- APLICAMOS LOS EFECTOS AL ENEMIGO ---
+			if aplicar_sangrado and body.has_method("aplicar_sangrado"):
+				body.aplicar_sangrado()
+				
+			if aplicar_veneno and body.has_method("aplicar_veneno"):
+				body.aplicar_veneno()
+				
+			if body.has_method("recibir_impacto"):
+				var empuje = (body.global_position - global_position).normalized() * fuerza_base
+				body.recibir_impacto(empuje)
+				acerto_golpe = true
+				
 	if acerto_golpe:
 		romper_arrastre()
-	
+		
 	return acerto_golpe
 
 # --- MÉTODOS DE CONTROL DE ARRASTRE ---

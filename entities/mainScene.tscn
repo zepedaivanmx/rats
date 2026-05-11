@@ -5,6 +5,8 @@
 [ext_resource type="PackedScene" uid="uid://b8wxy6vdijjrp" path="res://entities/ratDad.tscn" id="3_m0pfx"]
 [ext_resource type="Script" uid="uid://bph6ljhiqtn5k" path="res://scripts/spawner.gd" id="4_ypm76"]
 [ext_resource type="PackedScene" uid="uid://bnl7aytrlj4jv" path="res://entities/forest_animal.tscn" id="5_benjh"]
+[ext_resource type="PackedScene" uid="uid://dqieggpnnvqof" path="res://entities/serpiente.tscn" id="6_4ppsf"]
+[ext_resource type="PackedScene" uid="uid://htkqfdtfsmm4" path="res://entities/mineral.tscn" id="7_a0ha3"]
 
 [sub_resource type="NavigationMesh" id="NavigationMesh_m0pfx"]
 vertices = PackedVector3Array(-39.5, 0.4161377, 0, -1, 0.4161377, 0, -1, 0.4161377, -0.75, 0, 0.4161377, -1, 0, 0.4161377, -39.5, -39.5, 0.4161377, -39.5, 0.75, 0.4161377, -1, 1.25, 0.4161377, 0, 39.5, 0.4161377, 0, 39.5, 0.4161377, -39.5, -1, 0.4161377, 0.75, 0, 0.4161377, 39.5, 0, 0.4161377, 1, -39.5, 0.4161377, 39.5, 0.75, 0.4161377, 1, 39.5, 0.4161377, 39.5)
@@ -54,3 +56,7 @@ enemy_scene = ExtResource("5_benjh")
 
 [node name="Timer" type="Timer" parent="Spawner" unique_id=935394530]
 autostart = true
+
+[node name="serpiente" parent="." unique_id=391623062 instance=ExtResource("6_4ppsf")]
+
+[node name="mineral" parent="." unique_id=454837677 instance=ExtResource("7_a0ha3")]
