@@ -29,16 +29,6 @@ mesh = SubResource("CapsuleMesh_3xcrv")
 transform = Transform3D(0.013854627, 0.033445515, 0.99934465, -0.1970667, -0.9797472, 0.035521742, 0.9802931, -0.19742982, -0.00698301, 0, -1.2157701, 0.23241222)
 mesh = SubResource("PrismMesh_topch")
 
-[node name="CameraPivote" type="Node3D" parent="rata" unique_id=791730854]
-
-[node name="SpringArm3D" type="SpringArm3D" parent="rata/CameraPivote" unique_id=1637591541]
-transform = Transform3D(1, 0, 0, 0, 0.83600867, -0.5487165, 0, 0.5487165, 0.83600867, 0, 0, 0)
-spring_length = 10.0
-margin = 1.0
-
-[node name="Camera3D" type="Camera3D" parent="rata/CameraPivote/SpringArm3D" unique_id=1991159007]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.1977539, 4.073971)
-
 [node name="tailArea" type="Area3D" parent="rata" unique_id=1812772805]
 
 [node name="CollisionShape3D" type="CollisionShape3D" parent="rata/tailArea" unique_id=1133337448]

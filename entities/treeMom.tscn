@@ -1,5 +1,7 @@
 [gd_scene format=3 uid="uid://c6wht77wjbxxn"]
 
+[ext_resource type="Script" uid="uid://c1aamdccgxc4p" path="res://scripts/camera_pivote.gd" id="1_knkve"]
+
 [sub_resource type="PhysicsMaterial" id="PhysicsMaterial_a34xc"]
 
 [sub_resource type="StandardMaterial3D" id="StandardMaterial3D_a34xc"]
@@ -33,3 +35,10 @@ shape = SubResource("CylinderShape3D_a34xc")
 [node name="CollisionShape3D" type="CollisionShape3D" parent="Area3D" unique_id=2069921740]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.07072854, 0, -0.50241804)
 shape = SubResource("BoxShape3D_knkve")
+
+[node name="CameraPivote" type="Node3D" parent="." unique_id=1641479600]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 8, 0)
+script = ExtResource("1_knkve")
+
+[node name="Camera3D" type="Camera3D" parent="CameraPivote" unique_id=1858218206]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, -3)

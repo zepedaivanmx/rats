@@ -43,8 +43,31 @@ func _physics_process(delta: float) -> void:
 		velocity.y = JUMP_VELOCITY
 
 	# 3. Obtener el vector de entrada (Input en 8 direcciones)
-	var input_dir := Input.get_vector("ui_left", "ui_right", "ui_up", "ui_down")
-	var direction := (Vector3(input_dir.x, 0, input_dir.y)).normalized()
+	var input_dir := Input.get_vector("ui_right", "ui_left", "ui_up", "ui_down")
+	var direction := Vector3.ZERO
+	
+	if arbol_central:
+		# Calculamos el vector que apunta desde el árbol hacia la rata (eje radial)
+		var radial_dir = (global_position - arbol_central.global_position)
+		radial_dir.y = 0 # Ignoramos la altura para no volar
+		
+		# Si la rata está exactamente en el centro, evitamos errores matemáticos
+		if radial_dir.length() < 0.1:
+			radial_dir = Vector3.FORWARD
+		else:
+			radial_dir = radial_dir.normalized()
+			
+		# Calculamos el vector perpendicular (eje tangencial, para orbitar)
+		var tangent_dir = Vector3.UP.cross(radial_dir).normalized()
+		
+		# Sumamos las direcciones basadas en lo que presiona el jugador
+		# -input_dir.y (arriba/abajo): el negativo aleja del árbol, el positivo acerca
+		# input_dir.x (izq/der): mueve en el círculo orbital
+		direction = (tangent_dir * input_dir.x) + (radial_dir * -input_dir.y)
+		direction = direction.normalized()
+	else:
+		# Fallback de seguridad si el árbol no existe
+		direction = (Vector3(input_dir.x, 0, input_dir.y)).normalized()
 
 	# 4. Calcular velocidad de movimiento base por Input
 	var target_velocity_x = 0.0
