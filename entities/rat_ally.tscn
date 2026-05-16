@@ -1,0 +1,22 @@
+[gd_scene format=3 uid="uid://jopq1qxr0gc0"]
+
+[ext_resource type="Script" uid="uid://ycf7i7ab5bur" path="res://scripts/rat_ally.gd" id="1_a06rr"]
+[ext_resource type="PackedScene" uid="uid://ce3g5igmblp0n" path="res://entities/projectile.tscn" id="2_0i3jx"]
+
+[sub_resource type="CapsuleMesh" id="CapsuleMesh_vueys"]
+
+[sub_resource type="CapsuleShape3D" id="CapsuleShape3D_a06rr"]
+
+[node name="ratAlly" type="Node3D" unique_id=623433813]
+
+[node name="CharacterBody3D" type="CharacterBody3D" parent="." unique_id=56228134]
+script = ExtResource("1_a06rr")
+piedra_scene = ExtResource("2_0i3jx")
+
+[node name="MeshInstance3D" type="MeshInstance3D" parent="CharacterBody3D" unique_id=63551819]
+transform = Transform3D(1, 0, 0, 0, -0.028043808, 0.99960667, 0, -0.99960667, -0.028043808, 0, 0, 0)
+mesh = SubResource("CapsuleMesh_vueys")
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="CharacterBody3D" unique_id=442816600]
+transform = Transform3D(1, 0, 0, 0, 0.05582155, 0.99844074, 0, -0.99844074, 0.05582155, 0, 0, 0)
+shape = SubResource("CapsuleShape3D_a06rr")
