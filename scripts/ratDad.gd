@@ -93,33 +93,21 @@ func _physics_process(delta: float) -> void:
 
 	move_and_slide()
 
-	# --- RUTINA DE ATAQUES AUTOMÁTICOS ---
-	cooldown_mordida -= delta
-	if cooldown_mordida <= 0:
-		ejecutar_mordida()
-		cooldown_mordida = tiempo_mordida
-
-	cooldown_colazo -= delta
-	if cooldown_colazo <= 0:
-		ejecutar_colazo()
-		cooldown_colazo = tiempo_colazo
-		
-# --- RUTINA DE ATAQUES AUTOMÁTICOS MEJORADA ---
-	# (Pon esto dentro de tu _physics_process)
-	
+	# --- RUTINA DE ATAQUES AUTOMÁTICOS ÚNICA Y CORREGIDA ---
 	if cooldown_mordida > 0:
 		cooldown_mordida -= delta
 	else:
-		# Intenta morder. Si lo logra, entonces inicia el cooldown.
+		# Intenta morder. Si lo logra (devuelve true), inicia el cooldown
 		if ejecutar_mordida():
 			cooldown_mordida = tiempo_mordida
 
 	if cooldown_colazo > 0:
 		cooldown_colazo -= delta
 	else:
-		# Intenta dar el colazo. Si golpea a alguien, inicia el cooldown.
+		# Intenta dar el colazo. Si golpea a alguien, inicia el cooldown
 		if ejecutar_colazo():
 			cooldown_colazo = tiempo_colazo
+			
 	# --- CONDICIÓN DE GAME OVER: EL BOSQUE PROFUNDO ---
 	if arbol_central:
 		var distancia_al_arbol = global_position.distance_to(arbol_central.global_position)

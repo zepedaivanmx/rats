@@ -8,6 +8,7 @@
 [ext_resource type="PackedScene" uid="uid://dqieggpnnvqof" path="res://entities/serpiente.tscn" id="6_4ppsf"]
 [ext_resource type="PackedScene" uid="uid://htkqfdtfsmm4" path="res://entities/mineral.tscn" id="7_a0ha3"]
 [ext_resource type="PackedScene" uid="uid://jopq1qxr0gc0" path="res://entities/rat_ally.tscn" id="8_a0ha3"]
+[ext_resource type="PackedScene" uid="uid://blrux3hrna8ql" path="res://entities/rat_cousin.tscn" id="9_xovhv"]
 
 [sub_resource type="NavigationMesh" id="NavigationMesh_m0pfx"]
 vertices = PackedVector3Array(-39.5, 0.4161377, 0, -1, 0.4161377, 0, -1, 0.4161377, -0.75, 0, 0.4161377, -1, 0, 0.4161377, -39.5, -39.5, 0.4161377, -39.5, 0.75, 0.4161377, -1, 1.25, 0.4161377, 0, 39.5, 0.4161377, 0, 39.5, 0.4161377, -39.5, -1, 0.4161377, 0.75, 0, 0.4161377, 39.5, 0, 0.4161377, 1, -39.5, 0.4161377, 39.5, 0.75, 0.4161377, 1, 39.5, 0.4161377, 39.5)
@@ -63,3 +64,5 @@ autostart = true
 [node name="mineral" parent="." unique_id=454837677 instance=ExtResource("7_a0ha3")]
 
 [node name="ratAlly" parent="." unique_id=623433813 instance=ExtResource("8_a0ha3")]
+
+[node name="ratCousin" parent="." unique_id=599452056 instance=ExtResource("9_xovhv")]

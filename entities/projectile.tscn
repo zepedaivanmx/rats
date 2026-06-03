@@ -3,11 +3,11 @@
 [ext_resource type="Script" uid="uid://bda45ug7qonma" path="res://scripts/projectile.gd" id="1_46mfb"]
 
 [sub_resource type="SphereShape3D" id="SphereShape3D_46mfb"]
-radius = 0.1
+radius = 0.2
 
 [sub_resource type="SphereMesh" id="SphereMesh_5ycma"]
-radius = 0.1
-height = 0.1
+radius = 0.2
+height = 0.4
 
 [node name="projectile" type="RigidBody3D" unique_id=475172096]
 

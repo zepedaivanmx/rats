@@ -1,19 +1,20 @@
-[gd_scene format=3 uid="uid://jopq1qxr0gc0"]
+[gd_scene format=3 uid="uid://blrux3hrna8ql"]
 
-[ext_resource type="Script" uid="uid://ycf7i7ab5bur" path="res://scripts/rat_ally.gd" id="1_a06rr"]
-[ext_resource type="PackedScene" uid="uid://ce3g5igmblp0n" path="res://entities/projectile.tscn" id="2_0i3jx"]
+[ext_resource type="Script" uid="uid://dely0igbo8tp5" path="res://scripts/rat_cousin.gd" id="1_0bysf"]
 
 [sub_resource type="CapsuleMesh" id="CapsuleMesh_vueys"]
-radius = 0.3
-height = 1.4
+radius = 0.7
+height = 2.2
 
 [sub_resource type="CapsuleShape3D" id="CapsuleShape3D_a06rr"]
 
-[node name="ratAlly" type="Node3D" unique_id=623433813]
+[sub_resource type="SphereShape3D" id="SphereShape3D_0bysf"]
+radius = 0.8572227
+
+[node name="ratCousin" type="Node3D" unique_id=623433813]
 
 [node name="CharacterBody3D" type="CharacterBody3D" parent="." unique_id=56228134]
-script = ExtResource("1_a06rr")
-piedra_scene = ExtResource("2_0i3jx")
+script = ExtResource("1_0bysf")
 
 [node name="MeshInstance3D" type="MeshInstance3D" parent="CharacterBody3D" unique_id=63551819]
 transform = Transform3D(1, 0, 0, 0, -0.028043808, 0.99960667, 0, -0.99960667, -0.028043808, 0, 0, 0)
@@ -22,3 +23,9 @@ mesh = SubResource("CapsuleMesh_vueys")
 [node name="CollisionShape3D" type="CollisionShape3D" parent="CharacterBody3D" unique_id=442816600]
 transform = Transform3D(1, 0, 0, 0, 0.05582155, 0.99844074, 0, -0.99844074, 0.05582155, 0, 0, 0)
 shape = SubResource("CapsuleShape3D_a06rr")
+
+[node name="AreaEmpuje" type="Area3D" parent="CharacterBody3D" unique_id=818777441]
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="CharacterBody3D/AreaEmpuje" unique_id=133786963]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, -0.38092554)
+shape = SubResource("SphereShape3D_0bysf")
