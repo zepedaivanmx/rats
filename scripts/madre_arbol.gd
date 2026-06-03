@@ -1,5 +1,8 @@
 extends Node3D
 
+# --- NUEVA SECCIÓN: SEÑALES ---
+signal ciclo_cambiado(es_de_dia: bool)
+
 # --- VARIABLES DEL CICLO DÍA/NOCHE ---
 @export var sol_direccional: DirectionalLight3D
 @export var duracion_fase: float = 150.0 # 150 segundos = 2 minutos y 30 segundos
@@ -11,6 +14,8 @@ var timer_ciclo: Timer
 # --- VARIABLES DE CRECIMIENTO ---
 var biomasa_acumulada: int = 0
 @export var factor_crecimiento: float = 0.05
+
+
 
 func _ready() -> void:
 	if not is_in_group("CentralTree"):
@@ -51,6 +56,9 @@ func cambiar_fase_dia_noche() -> void:
 	
 	var nombre_fase = "DÍA" if es_de_dia else "NOCHE"
 	print("El Timer ha sonado. El bosque cambia... Ahora es de ", nombre_fase)
+	
+	# NUEVO: Avisamos a todos los nodos conectados que el ciclo cambió
+	ciclo_cambiado.emit(es_de_dia) 
 	
 	procesar_crecimiento()
 

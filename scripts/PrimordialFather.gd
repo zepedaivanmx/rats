@@ -22,9 +22,14 @@ var timer_efectos: float = 0.0
 
 # --- Variables de Muerte y Absorción ---
 var esta_muerto: bool = false
+var sera_absorbido: bool = false # <--- NUEVA: Define si el árbol se lo come
+var esta_pudriendose: bool = false # <--- NUEVA: Define si está fuera del área
+var ciclos_pudriendose: int = 0 # <--- NUEVA: Cuenta los ciclos que lleva muerto
+
 @export var velocidad_hundimiento: float = 1.0
 @export var profundidad_desaparicion: float = -2.0
-@export var radio_absorcion_arbol: float = 20.0 
+@export var radio_absorcion_arbol: float = 20.0
+
 
 # ==========================================
 # INICIALIZACIÓN
@@ -40,12 +45,15 @@ func _ready() -> void:
 # CICLO FÍSICO PRINCIPAL (CENTRALIZADO)
 # ==========================================
 func _physics_process(delta: float) -> void:
-	# 1. Verificar si está en proceso de muerte (Hundimiento)
+	# 1. Verificar si está en proceso de muerte
 	if esta_muerto:
-		position.y -= velocidad_hundimiento * delta
-		if position.y <= profundidad_desaparicion:
-			finalizar_muerte()
-		return # Detiene cualquier otra lógica de movimiento o físicas
+		if sera_absorbido:
+			# Solo se hunde si el árbol lo va a absorber
+			position.y -= velocidad_hundimiento * delta
+			if position.y <= profundidad_desaparicion:
+				finalizar_muerte()
+		# Si no será absorbido, se queda pudriéndose, detenemos físicas
+		return 
 
 	# 2. Aplicar Gravedad
 	if not is_on_floor():
@@ -54,19 +62,18 @@ func _physics_process(delta: float) -> void:
 	# 3. Procesar fricción del empuje (Knockback)
 	empuje_recibido = empuje_recibido.move_toward(Vector3.ZERO, delta * 40.0)
 
-	# 4. Decidir movimiento: ¿Está siendo empujado o puede caminar?
+	# 4. Decidir movimiento
 	if empuje_recibido.length() > 0.5:
 		velocity.x = empuje_recibido.x
 		velocity.z = empuje_recibido.z
-		ha_sido_empujado() # Si es empujado, debe soltar a la rata (función virtual)
+		ha_sido_empujado() 
 	else:
-		# Llama a la función VIRTUAL que cada hijo definirá a su manera
 		_mover_y_actuar(delta)
 
-	# 5. Aplicar daño por tiempo (Veneno/Sangrado)
+	# 5. Aplicar daño por tiempo
 	_procesar_estados_alterados(delta)
 
-	# 6. Ejecutar el movimiento físico en el motor
+	# 6. Ejecutar movimiento
 	move_and_slide()
 
 # ==========================================
@@ -115,16 +122,62 @@ func desaparecer() -> void:
 	esta_muerto = true
 	ha_sido_empujado()
 	
-	# Desactiva las colisiones para que la rata camine sobre el cadáver sin estorbar
 	if has_node("CollisionShape3D"):
 		$CollisionShape3D.set_deferred("disabled", true)
 
-func finalizar_muerte() -> void:
-	# Informa al árbol si murió dentro del área de sus raíces
+	# --- NUEVA LÓGICA DE DISTANCIA ---
 	if arbol_objetivo and is_instance_valid(arbol_objetivo):
 		var distancia = global_position.distance_to(arbol_objetivo.global_position)
 		if distancia <= radio_absorcion_arbol:
-			if arbol_objetivo.has_method("absorber_cadaver"):
-				arbol_objetivo.absorber_cadaver()
+			sera_absorbido = true
+		else:
+			sera_absorbido = false
+			iniciar_putrefaccion() # Comienza el ciclo de descomposición
+
+func finalizar_muerte() -> void:
+	# Informa al árbol si murió dentro del área (ahora usamos la bandera sera_absorbido)
+	if arbol_objetivo and is_instance_valid(arbol_objetivo) and sera_absorbido:
+		if arbol_objetivo.has_method("absorber_cadaver"):
+			arbol_objetivo.absorber_cadaver()
 				
 	queue_free()
+# ==========================================
+# NUEVO: SISTEMA DE PUTREFACCIÓN (Añadir al final del script)
+# ==========================================
+func iniciar_putrefaccion() -> void:
+	esta_pudriendose = true
+	# Conectamos este cadáver a la señal del árbol usando Callable
+	if arbol_objetivo.has_signal("ciclo_cambiado"):
+		arbol_objetivo.ciclo_cambiado.connect(_on_ciclo_cambiado)
+
+func _on_ciclo_cambiado(_es_de_dia: bool) -> void:
+	if not esta_pudriendose: return
+
+	ciclos_pudriendose += 1
+	
+	match ciclos_pudriendose:
+		1:
+			atraer_carroneros()
+		2:
+			generar_nido_insectos()
+		3:
+			convertirse_en_hongo()
+
+func atraer_carroneros() -> void:
+	print("Ciclo 1: Atrayendo carroñeros al cadáver en ", global_position)
+	# TODO: Instanciar la escena del enemigo carroñero cerca de este punto
+	# Opcional: Cambiar el material/color del cadáver a un tono más oscuro
+
+func generar_nido_insectos() -> void:
+	print("Ciclo 2: El cadáver se convierte en nido de insectos en ", global_position)
+	# TODO: Cambiar la malla (mesh) a un nido o activar sistema de partículas de moscas
+	# TODO: Instanciar área de daño o insectos pequeños alrededor
+
+func convertirse_en_hongo() -> void:
+	print("Ciclo 3: El cadáver brota como un hongo en ", global_position)
+	# TODO: Instanciar la escena del Hongo (como power-up o trampa)
+	# Desconectamos la señal por seguridad antes de borrar el nodo
+	if arbol_objetivo.ciclo_cambiado.is_connected(_on_ciclo_cambiado):
+		arbol_objetivo.ciclo_cambiado.disconnect(_on_ciclo_cambiado)
+	
+	queue_free() # El cadáver original desaparece finalmente
