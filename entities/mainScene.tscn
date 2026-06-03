@@ -30,11 +30,6 @@ plane = Plane(0, 80, 0, 8)
 [node name="rat" parent="." unique_id=1606034291 instance=ExtResource("3_m0pfx")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.029876709, -0.044714928, 7.7321362)
 
-[node name="DirectionalLight3D" type="DirectionalLight3D" parent="." unique_id=335235336]
-transform = Transform3D(-0.007235335, -0.57339054, 0.8192502, -0.0050637904, 0.8192822, 0.57336825, -0.999961, -4.6567944e-10, -0.008831311, 33.011116, 30.296818, 0)
-light_color = Color(0.79377323, 1, 0.762486, 1)
-shadow_enabled = true
-
 [node name="Navigation" type="Node3D" parent="." unique_id=461488186]
 
 [node name="NavigationRegion3D" type="NavigationRegion3D" parent="Navigation" unique_id=2082104869]
