@@ -1,6 +1,6 @@
 extends CharacterBody3D
 
-const SPEED = 5.0
+const SPEED = 6.0
 const JUMP_VELOCITY = 4.5
 
 var gravity: float = ProjectSettings.get_setting("physics/3d/default_gravity")
@@ -26,6 +26,9 @@ var cooldown_mordida: float = 0.0
 var cooldown_colazo: float = 0.0
 var tiempo_mordida: float = 12.0
 var tiempo_colazo: float = 6.0
+
+# VARIABLE DE CARGAR OBJETOS
+var objeto_cargado: Node3D = null
 
 
 func _ready() -> void:
@@ -118,61 +121,63 @@ func _physics_process(delta: float) -> void:
 # --- LÓGICA DE ATAQUES MODIFICADA ---
 # Devuelven un 'bool' para avisar si impactaron a alguien
 func ejecutar_mordida() -> bool:
+	# BLOQUEO: Si hay algo en la boca, la rata no puede morder enemigos ni otros objetos
+	if is_instance_valid(objeto_cargado):
+		return false
+		
 	var mordio_algo = false
 	
 	for body in area_mordida.get_overlapping_bodies():
-		if body == self:
-			continue # Ignorarnos a nosotros mismos
-			
-		# Obtenemos todas las etiquetas (grupos) del objeto
+		if body == self: continue 
+		
+		# NUEVA MECÁNICA: Recoger objeto
+		if body.is_in_group("recolectables"):
+			if body.has_method("ser_recogido"):
+				body.ser_recogido(self)
+				objeto_cargado = body
+				mordio_algo = true
+				break # Solo puede recoger un objeto a la vez
+
+		# LÓGICA ANTERIOR DE ENEMIGOS Y POWER UPS DIRECTOS
 		var grupos = body.get_groups()
 		var es_objeto_especial = false
 		
-		# Evaluamos usando match (switch) sobre los nombres de los grupos
 		for grupo in grupos:
-			match String(grupo): # Forzamos a String por seguridad
-				
+			match String(grupo):
 				"CentralTree":
 					if not cola_afilada:
 						cola_afilada = true
-						print("¡Obtuviste: Cola Afilada (Huesos/Madera)!")
-					es_objeto_especial = true
-					
+						print("¡Obtuviste: Cola Afilada!")
+						es_objeto_especial = true
 				"serpiente":
 					if not cola_venenosa:
 						cola_venenosa = true
 						print("¡Obtuviste: Cola Venenosa!")
-					if body.has_method("desaparecer"):
-						body.desaparecer()
-					else:
-						body.queue_free()
+					if body.has_method("desaparecer"): body.desaparecer()
+					else: body.queue_free()
 					es_objeto_especial = true
 					
-				"mineral":
-					if not cola_pesada:
-						cola_pesada = true
-						print("¡Obtuviste: Cola Pesada (Piedra)!")
-					if body.has_method("desaparecer"):
-						body.desaparecer()
-					else:
-						body.queue_free()
-					es_objeto_especial = true
-
-		# 1. Si el match encontró un power up, validamos la mordida
 		if es_objeto_especial:
 			mordio_algo = true
-			
-		# 2. Si no fue un power up, pero es un enemigo normal
-		elif body.has_method("desaparecer"):
+		elif body.has_method("desaparecer") and body.is_in_group("enemy"):
 			body.desaparecer()
 			mordio_algo = true
 
-		# Si logramos morder CUALQUIER cosa, nos liberamos y terminamos
-		if mordio_algo:
-			romper_arrastre()
-			return true 
-			
-	return false # No mordimos nada
+	if mordio_algo:
+		romper_arrastre()
+		return true 
+
+	return false
+
+# NUEVA FUNCIÓN: Las zonas ambientales llamarán a esto cuando entres en ellas
+func entregar_objeto() -> Node3D:
+	if not is_instance_valid(objeto_cargado):
+		return null
+		
+	var obj = objeto_cargado
+	objeto_cargado = null
+	# Aquí el objeto queda libre, la zona decide si destruirlo para darte el bonus
+	return obj
 
 func ejecutar_colazo() -> bool:
 	var acerto_golpe = false
