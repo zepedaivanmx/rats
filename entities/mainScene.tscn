@@ -1,5 +1,6 @@
 [gd_scene format=3 uid="uid://bhcxqo6m2mqmf"]
 
+[ext_resource type="PackedScene" uid="uid://bo8umup7toqx1" path="res://entities/charco.tscn" id="1_tftvj"]
 [ext_resource type="PackedScene" uid="uid://clc48k6w5qjx3" path="res://entities/ground.tscn" id="1_ybi8a"]
 [ext_resource type="PackedScene" uid="uid://c6wht77wjbxxn" path="res://entities/treeMom.tscn" id="2_23eff"]
 [ext_resource type="PackedScene" uid="uid://b8wxy6vdijjrp" path="res://entities/ratDad.tscn" id="3_m0pfx"]
@@ -26,6 +27,9 @@ margin = 0.0
 plane = Plane(0, 80, 0, 8)
 
 [node name="MainScene" type="Node3D" unique_id=1329283076]
+
+[node name="Charco" parent="." unique_id=309294910 instance=ExtResource("1_tftvj")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.5590668, 0.21058297, 18.226)
 
 [node name="rat" parent="." unique_id=1606034291 instance=ExtResource("3_m0pfx")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.029876709, -0.044714928, 7.7321362)
