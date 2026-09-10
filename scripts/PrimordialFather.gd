@@ -1,6 +1,7 @@
-class_name PrimordialFather
-extends CharacterBody3D
+class_name PrimordialFather  
+extends Recolectable # <-- MODIFICADO: Hereda de la clase base de recolección
 
+var es_pesado: bool = true # <-- NUEVO: Indica a la rata que debe ralentizarse
 # ==========================================
 # PROPIEDADES UNIVERSALES DE LOS ENEMIGOS
 # ==========================================
@@ -20,16 +21,22 @@ var esta_envenenado: bool = false
 var esta_sangrando: bool = false
 var timer_efectos: float = 0.0
 
-# --- Variables de Muerte y Absorción ---
-var esta_muerto: bool = false
-var sera_absorbido: bool = false # <--- NUEVA: Define si el árbol se lo come
-var esta_pudriendose: bool = false # <--- NUEVA: Define si está fuera del área
+# --- Variables de Muerte y Absorción --- 
 var ciclos_pudriendose: int = 0 # <--- NUEVA: Cuenta los ciclos que lleva muerto
 
 @export var velocidad_hundimiento: float = 1.0
 @export var profundidad_desaparicion: float = -2.0
 @export var radio_absorcion_arbol: float = 20.0
 
+
+# --- Variables de Muerte y Putrefacción ---
+var esta_muerto: bool = false
+var sera_absorbido: bool = false
+var esta_pudriendose: bool = false
+
+signal ha_muerto(cadaver: Node3D)     # <--- NUEVA SEÑAL: Avisa a las zonas
+signal se_ha_pudrido(cadaver: Node3D) # Bandera para la zona
+var timer_putrefaccion: Timer
 
 # ==========================================
 # INICIALIZACIÓN
@@ -45,6 +52,13 @@ func _ready() -> void:
 # CICLO FÍSICO PRINCIPAL (CENTRALIZADO)
 # ==========================================
 func _physics_process(delta: float) -> void:
+	# --- NUEVO: Lógica heredada del transporte ---
+	if siendo_transportado and is_instance_valid(transportador):
+		var boca = transportador.get_node_or_null("body/Boca")
+		if boca:
+			global_position = boca.global_position
+		return # Salimos de la función para no aplicar gravedad ni IA enemiga
+	# ---------------------------------------------
 	# 1. Verificar si está en proceso de muerte
 	if esta_muerto:
 		if sera_absorbido:
@@ -118,9 +132,12 @@ func _procesar_estados_alterados(delta: float) -> void:
 # SISTEMA DE MUERTE Y ABSORCIÓN
 # ==========================================
 func desaparecer() -> void:
-	if esta_muerto: return
+	if esta_muerto:
+		return
 	esta_muerto = true
 	ha_sido_empujado()
+	# Avisamos a cualquier zona ambiental que lo esté pisando
+	ha_muerto.emit(self)
 	
 	if has_node("CollisionShape3D"):
 		$CollisionShape3D.set_deferred("disabled", true)
@@ -132,7 +149,7 @@ func desaparecer() -> void:
 			sera_absorbido = true
 		else:
 			sera_absorbido = false
-			iniciar_putrefaccion() # Comienza el ciclo de descomposición
+			#iniciar_putrefaccion() # Comienza el ciclo de descomposición
 
 func finalizar_muerte() -> void:
 	# Informa al árbol si murió dentro del área (ahora usamos la bandera sera_absorbido)
@@ -142,42 +159,39 @@ func finalizar_muerte() -> void:
 				
 	queue_free()
 # ==========================================
-# NUEVO: SISTEMA DE PUTREFACCIÓN (Añadir al final del script)
+# OVERRIDE DE TRANSPORTE
+# ==========================================
+func ser_recogido(por_quien: Node3D) -> void:
+	super.ser_recogido(por_quien) # Llama la lógica base de Recolectable
+	cancelar_putrefaccion()       # Si la rata lo levanta, deja de pudrirse
+
+# ==========================================
+# SISTEMA DE PUTREFACCIÓN (Fase 1 - Enemigo)
 # ==========================================
 func iniciar_putrefaccion() -> void:
+	# Solo se pudre si está muerto y no ha empezado el proceso ya
+	if esta_pudriendose or not esta_muerto:
+		return
+	
 	esta_pudriendose = true
-	# Conectamos este cadáver a la señal del árbol usando Callable
-	if arbol_objetivo.has_signal("ciclo_cambiado"):
-		arbol_objetivo.ciclo_cambiado.connect(_on_ciclo_cambiado)
 
-func _on_ciclo_cambiado(_es_de_dia: bool) -> void:
-	if not esta_pudriendose: return
-
-	ciclos_pudriendose += 1
+	# Instanciamos el Timer dinámicamente si no existe
+	if not timer_putrefaccion:
+		timer_putrefaccion = Timer.new()
+		timer_putrefaccion.name = "TimerPutrefaccion"
+		timer_putrefaccion.one_shot = true
+		timer_putrefaccion.timeout.connect(_on_putrefaccion_completada)
+		add_child(timer_putrefaccion)
 	
-	match ciclos_pudriendose:
-		1:
-			atraer_carroneros()
-		2:
-			generar_nido_insectos()
-		3:
-			convertirse_en_hongo()
+	timer_putrefaccion.start(10.0)
+	print("El cadáver " + name + " empieza a pudrirse.")
 
-func atraer_carroneros() -> void:
-	print("Ciclo 1: Atrayendo carroñeros al cadáver en ", global_position)
-	# TODO: Instanciar la escena del enemigo carroñero cerca de este punto
-	# Opcional: Cambiar el material/color del cadáver a un tono más oscuro
+func cancelar_putrefaccion() -> void:
+	if esta_pudriendose and timer_putrefaccion and not timer_putrefaccion.is_stopped():
+		timer_putrefaccion.stop()
+		esta_pudriendose = false
+		print("Putrefacción cancelada. " + name + " fue recogido.")
 
-func generar_nido_insectos() -> void:
-	print("Ciclo 2: El cadáver se convierte en nido de insectos en ", global_position)
-	# TODO: Cambiar la malla (mesh) a un nido o activar sistema de partículas de moscas
-	# TODO: Instanciar área de daño o insectos pequeños alrededor
-
-func convertirse_en_hongo() -> void:
-	print("Ciclo 3: El cadáver brota como un hongo en ", global_position)
-	# TODO: Instanciar la escena del Hongo (como power-up o trampa)
-	# Desconectamos la señal por seguridad antes de borrar el nodo
-	if arbol_objetivo.ciclo_cambiado.is_connected(_on_ciclo_cambiado):
-		arbol_objetivo.ciclo_cambiado.disconnect(_on_ciclo_cambiado)
-	
-	queue_free() # El cadáver original desaparece finalmente
+func _on_putrefaccion_completada() -> void:
+	print("El cadáver " + name + " se ha podrido por completo.")
+	se_ha_pudrido.emit(self) # Levanta la bandera para notificar a la Zona Ambiental

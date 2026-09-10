@@ -1,6 +1,9 @@
 extends CharacterBody3D
 
-const SPEED = 6.0
+@export var velocidad_base: float = 5.0
+var speed: float = 5.0
+var objeto_cargado: Node3D = null
+
 const JUMP_VELOCITY = 4.5
 
 var gravity: float = ProjectSettings.get_setting("physics/3d/default_gravity")
@@ -27,8 +30,7 @@ var cooldown_colazo: float = 0.0
 var tiempo_mordida: float = 12.0
 var tiempo_colazo: float = 6.0
 
-# VARIABLE DE CARGAR OBJETOS
-var objeto_cargado: Node3D = null
+ 
 
 
 func _ready() -> void:
@@ -77,8 +79,8 @@ func _physics_process(delta: float) -> void:
 	var target_velocity_z = 0.0
 
 	if direction:
-		target_velocity_x = direction.x * SPEED
-		target_velocity_z = direction.z * SPEED
+		target_velocity_x = direction.x * speed
+		target_velocity_z = direction.z * speed
 		
 		# --- ROTACIÓN INDEPENDIENTE DEL ARRASTRE ---
 		# La rotación visual SOLO responde a la dirección del input
@@ -86,8 +88,8 @@ func _physics_process(delta: float) -> void:
 		visual_mesh.rotation.z = lerp_angle(visual_mesh.rotation.z, target_rotation, 15 * delta)
 	else:
 		# Si el jugador no presiona nada, la velocidad de input tiende a cero
-		target_velocity_x = move_toward(velocity.x - vector_arrastre.x, 0, SPEED)
-		target_velocity_z = move_toward(velocity.z - vector_arrastre.z, 0, SPEED)
+		target_velocity_x = move_toward(velocity.x - vector_arrastre.x, 0, speed)
+		target_velocity_z = move_toward(velocity.z - vector_arrastre.z, 0, speed)
 
 	# 5. --- LA MAGIA: SUMAR EL ARRASTRE AL INPUT ---
 	# La velocidad final es lo que el jugador intenta moverse + la fuerza centrífuga que le aplican
@@ -121,22 +123,33 @@ func _physics_process(delta: float) -> void:
 # --- LÓGICA DE ATAQUES MODIFICADA ---
 # Devuelven un 'bool' para avisar si impactaron a alguien
 func ejecutar_mordida() -> bool:
-	# BLOQUEO: Si hay algo en la boca, la rata no puede morder enemigos ni otros objetos
 	if is_instance_valid(objeto_cargado):
-		return false
+		return false # Si tiene algo en la boca, bloquea la mordida
 		
 	var mordio_algo = false
 	
 	for body in area_mordida.get_overlapping_bodies():
 		if body == self: continue 
 		
-		# NUEVA MECÁNICA: Recoger objeto
-		if body.is_in_group("recolectables"):
-			if body.has_method("ser_recogido"):
-				body.ser_recogido(self)
-				objeto_cargado = body
-				mordio_algo = true
-				break # Solo puede recoger un objeto a la vez
+		# --- NUEVO: Detectar si es Mineral o Cadáver ---
+		var es_recogible = false
+		if body.is_in_group("recolectables"): # Minerales, Hongos
+			es_recogible = true
+		elif body.is_in_group("enemy") and body.get("esta_muerto") == true:
+			es_recogible = true # Es un cadáver enemigo
+
+		if es_recogible and body.has_method("ser_recogido"):
+			body.ser_recogido(self)
+			objeto_cargado = body
+			
+			# Lógica de penalización de peso
+			if body.get("es_pesado") == true:
+				speed = velocidad_base * 0.5 # Reduce velocidad a la mitad
+			else:
+				speed = velocidad_base
+				
+			mordio_algo = true
+			break # Solo recoge un objeto a la vez
 
 		# LÓGICA ANTERIOR DE ENEMIGOS Y POWER UPS DIRECTOS
 		var grupos = body.get_groups()
@@ -259,6 +272,17 @@ func _on_aura_area_body_entered(body: Node3D) -> void:
 	# Opcionalmente, puedes eliminar esta función y desconectar la señal si no la usarás para nada más
 	pass
 
+func soltar_objeto() -> Node3D:
+	if not is_instance_valid(objeto_cargado): return null
+		
+	var obj = objeto_cargado
+	objeto_cargado = null
+	speed = velocidad_base # Recupera su velocidad normal
+	
+	if obj.has_method("ser_soltado"):
+		obj.ser_soltado(global_position)
+		
+	return obj
 
 func _on_aura_area_body_exited(body: Node3D) -> void:
 	if body.is_in_group("enemy"):
