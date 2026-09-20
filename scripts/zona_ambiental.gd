@@ -14,6 +14,16 @@ func _ready() -> void:
 	body_exited.connect(_on_body_exited)
 
 func _on_body_entered(body: Node3D) -> void:
+	# --- NUEVO: Automatización de entrega ---
+	# Si la rata entra a la zona cargando un cadáver, lo suelta automáticamente
+	if body.is_in_group("rats"):
+		var objeto = body.get("objeto_cargado")
+		if is_instance_valid(objeto) and objeto.is_in_group("enemy") and objeto.get("esta_muerto") == true:
+			body.soltar_objeto()
+			# Al soltarlo, el cadáver reactiva sus colisiones. 
+			# En el siguiente frame, esta misma función lo detectará como enemigo muerto.
+		return
+
 	# Ignorar cualquier cosa que no sea un enemigo
 	if not body.is_in_group("enemy"):
 		return
@@ -21,6 +31,7 @@ func _on_body_entered(body: Node3D) -> void:
 	# CASO A: Entró un cadáver (Ej. La rata lo soltó aquí o cayó muerto)
 	if body.get("esta_muerto") == true:
 		procesar_cadaver(body)
+		
 	# CASO B: Entró un enemigo vivo. Lo vigilamos.
 	else:
 		if body.has_signal("ha_muerto") and not body.is_connected("ha_muerto", _on_enemigo_murio_en_zona):

@@ -1,7 +1,7 @@
 extends CharacterBody3D
 
 @export var velocidad_base: float = 5.0
-var speed: float = 5.0
+var speed: float = 7.0
 var objeto_cargado: Node3D = null
 
 const JUMP_VELOCITY = 4.5
@@ -128,8 +128,8 @@ func ejecutar_mordida() -> bool:
 		
 	var mordio_algo = false
 	
-	for body in area_mordida.get_overlapping_bodies():
-		if body == self: continue 
+	for body in area_mordida.get_overlapping_bodies(): ################ Sospechosooooo
+		if body == self: continue  #################################### Sospechosooooo
 		
 		# --- NUEVO: Detectar si es Mineral o Cadáver ---
 		var es_recogible = false
@@ -154,21 +154,6 @@ func ejecutar_mordida() -> bool:
 		# LÓGICA ANTERIOR DE ENEMIGOS Y POWER UPS DIRECTOS
 		var grupos = body.get_groups()
 		var es_objeto_especial = false
-		
-		for grupo in grupos:
-			match String(grupo):
-				"CentralTree":
-					if not cola_afilada:
-						cola_afilada = true
-						print("¡Obtuviste: Cola Afilada!")
-						es_objeto_especial = true
-				"serpiente":
-					if not cola_venenosa:
-						cola_venenosa = true
-						print("¡Obtuviste: Cola Venenosa!")
-					if body.has_method("desaparecer"): body.desaparecer()
-					else: body.queue_free()
-					es_objeto_especial = true
 					
 		if es_objeto_especial:
 			mordio_algo = true

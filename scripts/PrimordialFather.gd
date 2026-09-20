@@ -5,7 +5,7 @@ var es_pesado: bool = true # <-- NUEVO: Indica a la rata que debe ralentizarse
 # ==========================================
 # PROPIEDADES UNIVERSALES DE LOS ENEMIGOS
 # ==========================================
-@export var speed: float = 6.0
+@export var speed: float = 3.0
 @export var max_hp: float = 100.0
 
 var hp: float
@@ -22,7 +22,6 @@ var esta_sangrando: bool = false
 var timer_efectos: float = 0.0
 
 # --- Variables de Muerte y Absorción --- 
-var ciclos_pudriendose: int = 0 # <--- NUEVA: Cuenta los ciclos que lleva muerto
 
 @export var velocidad_hundimiento: float = 1.0
 @export var profundidad_desaparicion: float = -2.0

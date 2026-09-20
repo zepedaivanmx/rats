@@ -4,19 +4,14 @@
 
 [sub_resource type="CylinderShape3D" id="CylinderShape3D_8xo7f"]
 height = 0.22238159
-radius = 1.5
+radius = 3.0
 
 [sub_resource type="CylinderShape3D" id="CylinderShape3D_p1of7"]
 height = 0.23583984
 radius = 0.75
 
-[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_s4wsh"]
-
-[sub_resource type="CylinderMesh" id="CylinderMesh_8xo7f"]
-material = SubResource("StandardMaterial3D_s4wsh")
-top_radius = 1.5
-bottom_radius = 1.5
-height = 0.25
+[sub_resource type="TorusMesh" id="TorusMesh_tftvj"]
+outer_radius = 1.7
 
 [node name="Charco" type="Area3D" unique_id=1043603475 groups=["zonas_ambientales"]]
 script = ExtResource("1_uen4p")
@@ -31,4 +26,4 @@ shape = SubResource("CylinderShape3D_p1of7")
 
 [node name="MeshInstance3D" type="MeshInstance3D" parent="." unique_id=802524842]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -0.071659625, 0)
-mesh = SubResource("CylinderMesh_8xo7f")
+mesh = SubResource("TorusMesh_tftvj")
