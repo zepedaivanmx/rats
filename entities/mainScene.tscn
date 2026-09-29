@@ -56,6 +56,7 @@ script = ExtResource("4_ypm76")
 enemy_scene = ExtResource("5_benjh")
 
 [node name="Timer" type="Timer" parent="Spawner" unique_id=935394530]
+wait_time = 3.0
 autostart = true
 
 [node name="serpiente" parent="." unique_id=391623062 instance=ExtResource("6_4ppsf")]

@@ -9,8 +9,17 @@
 [sub_resource type="PrismMesh" id="PrismMesh_topch"]
 size = Vector3(0.4, 0.6, 0.5)
 
+[sub_resource type="SphereShape3D" id="SphereShape3D_dq4iu"]
+radius = 2.5
+
 [sub_resource type="SphereShape3D" id="SphereShape3D_topch"]
 radius = 4.0
+
+[sub_resource type="SphereShape3D" id="SphereShape3D_3xcrv"]
+radius = 2.0
+
+[sub_resource type="SphereShape3D" id="SphereShape3D_tdmi4"]
+radius = 1.8
 
 [node name="rat" type="Node3D" unique_id=1606034291]
 
@@ -29,10 +38,13 @@ mesh = SubResource("CapsuleMesh_3xcrv")
 transform = Transform3D(0.013854627, 0.033445515, 0.99934465, -0.1970667, -0.9797472, 0.035521742, 0.9802931, -0.19742982, -0.00698301, 0, -1.2157701, 0.23241222)
 mesh = SubResource("PrismMesh_topch")
 
+[node name="Boca" type="Marker3D" parent="rata/body/MeshInstance3D" unique_id=143726444]
+transform = Transform3D(0.013854608, 0.96958387, 0.24436292, 0.033445533, -0.24469884, 0.96902114, 0.99934435, -0.0052525853, -0.035818443, -0.029810429, 0.31530058, -0.010139022)
+
 [node name="tailArea" type="Area3D" parent="rata" unique_id=1812772805]
 
 [node name="CollisionShape3D" type="CollisionShape3D" parent="rata/tailArea" unique_id=1133337448]
-shape = SubResource("SphereShape3D_topch")
+shape = SubResource("SphereShape3D_dq4iu")
 
 [node name="auraArea" type="Area3D" parent="rata" unique_id=1862143792]
 
@@ -43,10 +55,14 @@ shape = SubResource("SphereShape3D_topch")
 
 [node name="CollisionShape3D" type="CollisionShape3D" parent="rata/biteArea" unique_id=1859251052]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -1.4505523, 0.07041103)
-shape = SubResource("SphereShape3D_topch")
+shape = SubResource("SphereShape3D_3xcrv")
 
-[node name="Boca" type="Marker3D" parent="." unique_id=143726444]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.912094, 1.5242207)
+[node name="pickupArea" type="Area3D" parent="rata" unique_id=1827456595]
+collision_layer = 0
+collision_mask = 48
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="rata/pickupArea" unique_id=1468546047]
+shape = SubResource("SphereShape3D_tdmi4")
 
 [connection signal="body_entered" from="rata/auraArea" to="rata" method="_on_aura_area_body_entered"]
 [connection signal="body_exited" from="rata/auraArea" to="rata" method="_on_aura_area_body_exited"]

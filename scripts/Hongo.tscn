@@ -1,0 +1,19 @@
+[gd_scene format=3 uid="uid://d1p53og42lymv"]
+
+[ext_resource type="Script" uid="uid://fmojaconhq1l" path="res://scripts/hongo.gd" id="1_aputb"]
+
+[sub_resource type="SphereMesh" id="SphereMesh_tdmi4"]
+radius = 0.3
+height = 0.6
+
+[sub_resource type="SphereShape3D" id="SphereShape3D_tdmi4"]
+radius = 0.3
+
+[node name="Hongo" type="CharacterBody3D" unique_id=140089228]
+script = ExtResource("1_aputb")
+
+[node name="MeshInstance3D" type="MeshInstance3D" parent="." unique_id=337514271]
+mesh = SubResource("SphereMesh_tdmi4")
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="." unique_id=70716517]
+shape = SubResource("SphereShape3D_tdmi4")

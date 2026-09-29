@@ -1,11 +1,12 @@
 class_name PrimordialFather  
 extends Recolectable # <-- MODIFICADO: Hereda de la clase base de recolección
 
+var en_gestacion: bool = false # NUEVO (EXPLICA PQ)
 var es_pesado: bool = true # <-- NUEVO: Indica a la rata que debe ralentizarse
 # ==========================================
 # PROPIEDADES UNIVERSALES DE LOS ENEMIGOS
 # ==========================================
-@export var speed: float = 6.0
+@export var speed: float = 2.0
 @export var max_hp: float = 100.0
 
 var hp: float
@@ -26,7 +27,7 @@ var ciclos_pudriendose: int = 0 # <--- NUEVA: Cuenta los ciclos que lleva muerto
 
 @export var velocidad_hundimiento: float = 1.0
 @export var profundidad_desaparicion: float = -2.0
-@export var radio_absorcion_arbol: float = 20.0
+@export var radio_absorcion_arbol: float = 5.0
 
 
 # --- Variables de Muerte y Putrefacción ---
@@ -42,32 +43,31 @@ var timer_putrefaccion: Timer
 # INICIALIZACIÓN
 # ==========================================
 func _ready() -> void:
+	super() # <-- IMPRESCINDIBLE
 	hp = max_hp
 	# Esperamos un frame para garantizar que el árbol y la rata ya existan en la escena
 	await get_tree().physics_frame
 	arbol_objetivo = get_tree().get_first_node_in_group("CentralTree")
 	rata_objetivo = get_tree().get_first_node_in_group("rats")
 
+#NUEVO RECOLECCIÓN
+func puede_ser_recogido() -> bool:
+	return esta_muerto and not sera_absorbido and not en_gestacion and not siendo_transportado
+
 # ==========================================
 # CICLO FÍSICO PRINCIPAL (CENTRALIZADO)
 # ==========================================
 func _physics_process(delta: float) -> void:
-	# --- NUEVO: Lógica heredada del transporte ---
-	if siendo_transportado and is_instance_valid(transportador):
-		var boca = transportador.get_node_or_null("body/Boca")
-		if boca:
-			global_position = boca.global_position
-		return # Salimos de la función para no aplicar gravedad ni IA enemiga
-	# ---------------------------------------------
-	# 1. Verificar si está en proceso de muerte
+	# Transporte y cadáver en el suelo: lo maneja el padre (con gravedad)
+	if siendo_transportado or (esta_muerto and not sera_absorbido):
+		super(delta)
+		return
+	# Cadáver que será absorbido por el árbol: se hunde
 	if esta_muerto:
-		if sera_absorbido:
-			# Solo se hunde si el árbol lo va a absorber
-			position.y -= velocidad_hundimiento * delta
-			if position.y <= profundidad_desaparicion:
-				finalizar_muerte()
-		# Si no será absorbido, se queda pudriéndose, detenemos físicas
-		return 
+		position.y -= velocidad_hundimiento * delta
+		if position.y <= profundidad_desaparicion:
+			finalizar_muerte()
+		return
 
 	# 2. Aplicar Gravedad
 	if not is_on_floor():
@@ -110,6 +110,7 @@ func recibir_impacto(fuerza: Vector3) -> void:
 func recibir_dano(cantidad: float) -> void:
 	if esta_muerto: return
 	hp -= cantidad
+	print(name, " recibió daño. HP restante: ", hp)
 	if hp <= 0:
 		desaparecer()
 
@@ -136,11 +137,17 @@ func desaparecer() -> void:
 		return
 	esta_muerto = true
 	ha_sido_empujado()
-	# Avisamos a cualquier zona ambiental que lo esté pisando
-	ha_muerto.emit(self)
+	collision_layer = CAPA_CADAVER  # ya no bloquea a la rata ni se desactiva
+	collision_mask = 1              # sigue chocando con el suelo
+	sera_absorbido = arbol_objetivo != null and is_instance_valid(arbol_objetivo) \
+		and global_position.distance_to(arbol_objetivo.global_position) <= radio_absorcion_arbol
+	print(name, " ha muerto. sera_absorbido = ", sera_absorbido)
+	ha_muerto.emit(self) # las zonas pueden llamar a reclamar_por_zona()
 	
-	if has_node("CollisionShape3D"):
-		$CollisionShape3D.set_deferred("disabled", true)
+## CONFIRMAR CAPA CADAVER
+
+func reclamar_por_zona() -> void:
+	sera_absorbido = false # la zona tiene prioridad sobre el árbol
 
 	# --- NUEVA LÓGICA DE DISTANCIA ---
 	if arbol_objetivo and is_instance_valid(arbol_objetivo):
@@ -162,7 +169,7 @@ func finalizar_muerte() -> void:
 # OVERRIDE DE TRANSPORTE
 # ==========================================
 func ser_recogido(por_quien: Node3D) -> void:
-	super.ser_recogido(por_quien) # Llama la lógica base de Recolectable
+	super(por_quien) # Llama la lógica base de Recolectable
 	cancelar_putrefaccion()       # Si la rata lo levanta, deja de pudrirse
 
 # ==========================================
@@ -187,10 +194,9 @@ func iniciar_putrefaccion() -> void:
 	print("El cadáver " + name + " empieza a pudrirse.")
 
 func cancelar_putrefaccion() -> void:
-	if esta_pudriendose and timer_putrefaccion and not timer_putrefaccion.is_stopped():
+	if timer_putrefaccion:
 		timer_putrefaccion.stop()
-		esta_pudriendose = false
-		print("Putrefacción cancelada. " + name + " fue recogido.")
+	esta_pudriendose = false
 
 func _on_putrefaccion_completada() -> void:
 	print("El cadáver " + name + " se ha podrido por completo.")

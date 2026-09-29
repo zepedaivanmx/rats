@@ -1,8 +1,12 @@
 extends CharacterBody3D
 
 @export var velocidad_base: float = 5.0
-var speed: float = 5.0
+var speed: float = 7.0
 var objeto_cargado: Node3D = null
+signal inventario_cambiado(cantidad: int)
+
+@export var capacidad_inventario: int = 5   # PROVISIONAL
+var inventario: Array[Recolectable] = []
 
 const JUMP_VELOCITY = 4.5
 
@@ -12,6 +16,7 @@ var gravity: float = ProjectSettings.get_setting("physics/3d/default_gravity")
 @onready var area_mordida = $biteArea
 @onready var area_colazo = $tailArea
 @onready var area_contacto = $auraArea
+@onready var area_recogida = $pickupArea
 
 # --- VARIABLES DE POWER UPS ---
 # ---  (COLA) ---
@@ -27,8 +32,8 @@ var arbol_central: Node3D
 var vector_arrastre: Vector3 = Vector3.ZERO
 var cooldown_mordida: float = 0.0
 var cooldown_colazo: float = 0.0
-var tiempo_mordida: float = 12.0
-var tiempo_colazo: float = 6.0
+var tiempo_mordida: float = 2.0
+var tiempo_colazo: float = 5.0
 
  
 
@@ -39,6 +44,10 @@ func _ready() -> void:
 	arbol_central = get_tree().get_first_node_in_group("CentralTree")
 
 func _physics_process(delta: float) -> void:
+	if Input.is_action_just_pressed("recoger"):
+		intentar_recoger()
+	if Input.is_action_just_pressed("soltar"):
+		soltar_objeto()
 	# 1. Aplicar Gravedad
 	if not is_on_floor():
 		velocity.y -= gravity * delta
@@ -130,27 +139,11 @@ func ejecutar_mordida() -> bool:
 	
 	for body in area_mordida.get_overlapping_bodies():
 		if body == self: continue 
-		
-		# --- NUEVO: Detectar si es Mineral o Cadáver ---
-		var es_recogible = false
-		if body.is_in_group("recolectables"): # Minerales, Hongos
-			es_recogible = true
-		elif body.is_in_group("enemy") and body.get("esta_muerto") == true:
-			es_recogible = true # Es un cadáver enemigo
-
-		if es_recogible and body.has_method("ser_recogido"):
-			body.ser_recogido(self)
-			objeto_cargado = body
-			
-			# Lógica de penalización de peso
-			if body.get("es_pesado") == true:
-				speed = velocidad_base * 0.5 # Reduce velocidad a la mitad
-			else:
-				speed = velocidad_base
-				
-			mordio_algo = true
-			break # Solo recoge un objeto a la vez
-
+		# La mordida es solo ataque: ignora recolectables y cadáveres
+		if body is Recolectable and not (body is PrimordialFather):
+			continue
+		if body is PrimordialFather and body.esta_muerto:
+			continue
 		# LÓGICA ANTERIOR DE ENEMIGOS Y POWER UPS DIRECTOS
 		var grupos = body.get_groups()
 		var es_objeto_especial = false
@@ -283,6 +276,36 @@ func soltar_objeto() -> Node3D:
 		obj.ser_soltado(global_position)
 		
 	return obj
+
+func intentar_recoger() -> void:
+	if is_instance_valid(objeto_cargado):
+		return   # ya lleva algo en la boca
+	var mejor: Recolectable = null
+	var mejor_dist := INF
+	for body in area_recogida.get_overlapping_bodies():
+		if body is Recolectable and body.puede_ser_recogido():
+			if body.modo_recogida == Recolectable.ModoRecogida.INVENTARIO \
+					and inventario.size() >= capacidad_inventario:
+				continue   # inventario lleno
+			var d := global_position.distance_squared_to(body.global_position)
+			if d < mejor_dist:
+				mejor_dist = d
+				mejor = body
+	if not mejor:
+		return
+	mejor.ser_recogido(self)
+	if mejor.modo_recogida == Recolectable.ModoRecogida.INVENTARIO:
+		inventario.append(mejor)
+		inventario_cambiado.emit(inventario.size())
+	else:
+		objeto_cargado = mejor
+		speed = velocidad_base * (0.5 if mejor.get("es_pesado") == true else 1.0)
+
+func vaciar_inventario() -> Array[Recolectable]:
+	var items: Array[Recolectable] = inventario.duplicate()
+	inventario.clear()
+	inventario_cambiado.emit(0)
+	return items
 
 func _on_aura_area_body_exited(body: Node3D) -> void:
 	if body.is_in_group("enemy"):
