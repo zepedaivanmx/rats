@@ -10,6 +10,9 @@
 [ext_resource type="PackedScene" uid="uid://htkqfdtfsmm4" path="res://entities/mineral.tscn" id="7_a0ha3"]
 [ext_resource type="PackedScene" uid="uid://jopq1qxr0gc0" path="res://entities/rat_ally.tscn" id="8_a0ha3"]
 [ext_resource type="PackedScene" uid="uid://blrux3hrna8ql" path="res://entities/rat_cousin.tscn" id="9_xovhv"]
+[ext_resource type="PackedScene" uid="uid://b0ylbd5nt1t1y" path="res://entities/raiz.tscn" id="11_mynfx"]
+[ext_resource type="PackedScene" uid="uid://coip6od5u2bct" path="res://entities/pasto.tscn" id="12_de6qr"]
+[ext_resource type="PackedScene" uid="uid://b6q2p3l3cyyhg" path="res://entities/arena.tscn" id="13_e571o"]
 
 [sub_resource type="NavigationMesh" id="NavigationMesh_m0pfx"]
 vertices = PackedVector3Array(-39.5, 0.4161377, 0, -1, 0.4161377, 0, -1, 0.4161377, -0.75, 0, 0.4161377, -1, 0, 0.4161377, -39.5, -39.5, 0.4161377, -39.5, 0.75, 0.4161377, -1, 1.25, 0.4161377, 0, 39.5, 0.4161377, 0, 39.5, 0.4161377, -39.5, -1, 0.4161377, 0.75, 0, 0.4161377, 39.5, 0, 0.4161377, 1, -39.5, 0.4161377, 39.5, 0.75, 0.4161377, 1, 39.5, 0.4161377, 39.5)
@@ -29,7 +32,7 @@ plane = Plane(0, 80, 0, 8)
 [node name="MainScene" type="Node3D" unique_id=1329283076]
 
 [node name="Charco" parent="." unique_id=309294910 instance=ExtResource("1_tftvj")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.5590668, 0.21058297, 18.226)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.5590668, 0.21058297, 27.03797)
 
 [node name="rat" parent="." unique_id=1606034291 instance=ExtResource("3_m0pfx")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.029876709, -0.044714928, 7.7321362)
@@ -66,3 +69,15 @@ autostart = true
 [node name="ratAlly" parent="." unique_id=623433813 instance=ExtResource("8_a0ha3")]
 
 [node name="ratCousin" parent="." unique_id=599452056 instance=ExtResource("9_xovhv")]
+
+[node name="Raiz" parent="." unique_id=811100734 instance=ExtResource("11_mynfx")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.9104805, 0, -11.401365)
+
+[node name="Raiz2" parent="." unique_id=615277657 instance=ExtResource("11_mynfx")]
+transform = Transform3D(0.44698867, 0, -0.8945396, 0, 1, 0, 0.8945396, 0, 0.44698867, 11.729282, 0, 0)
+
+[node name="Node3D" parent="." unique_id=683682275 instance=ExtResource("12_de6qr")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 29.420973, 0, 0)
+
+[node name="Arena" parent="." unique_id=472723614 instance=ExtResource("13_e571o")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -28.357916, 0, 0)

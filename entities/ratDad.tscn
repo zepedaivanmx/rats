@@ -59,7 +59,7 @@ shape = SubResource("SphereShape3D_3xcrv")
 
 [node name="pickupArea" type="Area3D" parent="rata" unique_id=1827456595]
 collision_layer = 0
-collision_mask = 48
+collision_mask = 49
 
 [node name="CollisionShape3D" type="CollisionShape3D" parent="rata/pickupArea" unique_id=1468546047]
 shape = SubResource("SphereShape3D_tdmi4")

@@ -278,22 +278,36 @@ func soltar_objeto() -> Node3D:
 	return obj
 
 func intentar_recoger() -> void:
+	# 1. PRIORIDAD: Dar orden al aliado si está dentro del área (pickupArea)
+	for body in area_recogida.get_overlapping_bodies():
+		if body.is_in_group("aliados") and body.has_method("alternar_orden_patrulla"):
+			body.alternar_orden_patrulla()
+			# Salimos de la función inmediatamente para no recoger un objeto accidentalmente
+			return 
+
+	# 2. SECUNDARIO: Recoger objetos (Tu lógica original intacta)
 	if is_instance_valid(objeto_cargado):
 		return   # ya lleva algo en la boca
+		
 	var mejor: Recolectable = null
 	var mejor_dist := INF
+	
 	for body in area_recogida.get_overlapping_bodies():
 		if body is Recolectable and body.puede_ser_recogido():
 			if body.modo_recogida == Recolectable.ModoRecogida.INVENTARIO \
-					and inventario.size() >= capacidad_inventario:
+			and inventario.size() >= capacidad_inventario:
 				continue   # inventario lleno
+				
 			var d := global_position.distance_squared_to(body.global_position)
 			if d < mejor_dist:
 				mejor_dist = d
 				mejor = body
+				
 	if not mejor:
 		return
+		
 	mejor.ser_recogido(self)
+	
 	if mejor.modo_recogida == Recolectable.ModoRecogida.INVENTARIO:
 		inventario.append(mejor)
 		inventario_cambiado.emit(inventario.size())

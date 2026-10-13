@@ -1,0 +1,21 @@
+[gd_scene format=3 uid="uid://coip6od5u2bct"]
+
+[ext_resource type="PackedScene" uid="uid://dvrr8u28qlic3" path="res://entities/escarabajo.tscn" id="1_8nywe"]
+
+[sub_resource type="CylinderShape3D" id="CylinderShape3D_8xo7f"]
+height = 0.1
+radius = 3.0
+
+[sub_resource type="SphereMesh" id="SphereMesh_8xo7f"]
+radius = 2.5
+
+[node name="Node3D" type="Area3D" unique_id=683682275]
+
+[node name="Escarabajo" parent="." unique_id=1292230448 instance=ExtResource("1_8nywe")]
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="." unique_id=879756199]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.036557347, 0)
+shape = SubResource("CylinderShape3D_8xo7f")
+
+[node name="MeshInstance3D" type="MeshInstance3D" parent="." unique_id=2024363524]
+mesh = SubResource("SphereMesh_8xo7f")

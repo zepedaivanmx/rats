@@ -9,11 +9,22 @@ height = 0.6
 [sub_resource type="SphereShape3D" id="SphereShape3D_tdmi4"]
 radius = 0.3
 
+[sub_resource type="CylinderMesh" id="CylinderMesh_8xo7f"]
+top_radius = 0.107421875
+bottom_radius = 0.107421875
+height = 0.38226318
+
 [node name="Hongo" type="CharacterBody3D" unique_id=140089228]
 script = ExtResource("1_aputb")
 
 [node name="MeshInstance3D" type="MeshInstance3D" parent="." unique_id=337514271]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.49456447, 0)
 mesh = SubResource("SphereMesh_tdmi4")
 
 [node name="CollisionShape3D" type="CollisionShape3D" parent="." unique_id=70716517]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.49456447, 0)
 shape = SubResource("SphereShape3D_tdmi4")
+
+[node name="MeshInstance3D2" type="MeshInstance3D" parent="." unique_id=1082419127]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.18734401, 0)
+mesh = SubResource("CylinderMesh_8xo7f")

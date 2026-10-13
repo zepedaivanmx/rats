@@ -1,0 +1,39 @@
+[gd_scene format=3 uid="uid://dvrr8u28qlic3"]
+
+[ext_resource type="Script" uid="uid://gxu7wsc13k31" path="res://scripts/escarabajo.gd" id="1_fhvnn"]
+
+[sub_resource type="CapsuleShape3D" id="CapsuleShape3D_tjhpv"]
+
+[sub_resource type="SphereMesh" id="SphereMesh_rarw8"]
+radius = 0.75
+height = 1.5
+
+[sub_resource type="SphereMesh" id="SphereMesh_fpp7p"]
+radius = 0.25
+height = 0.5
+
+[sub_resource type="SphereShape3D" id="SphereShape3D_gf4de"]
+radius = 3.0
+
+[node name="Escarabajo" type="CharacterBody3D" unique_id=1292230448]
+script = ExtResource("1_fhvnn")
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="." unique_id=559748354]
+transform = Transform3D(1, 0, 0, 0, 0.010216594, 0.9999478, 0, -0.9999478, 0.010216594, 0, 0.50787354, 0)
+shape = SubResource("CapsuleShape3D_tjhpv")
+
+[node name="MeshInstance3D" type="MeshInstance3D" parent="." unique_id=856618687]
+transform = Transform3D(1, 0, 0, 0, 0.008415675, -0.9999646, 0, 0.9999646, 0.008415675, 0, 0.49282068, 0.02661039)
+mesh = SubResource("SphereMesh_rarw8")
+
+[node name="NavigationAgent3D" type="NavigationAgent3D" parent="." unique_id=1308217405]
+
+[node name="MeshInstance3D2" type="MeshInstance3D" parent="." unique_id=303756247]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.031038165, 0.82611346, 0.87390614)
+mesh = SubResource("SphereMesh_fpp7p")
+
+[node name="AreaAtaque" type="Area3D" parent="." unique_id=171030823]
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="AreaAtaque" unique_id=967833317]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.111082315, 0.51048636, 0.11890793)
+shape = SubResource("SphereShape3D_gf4de")
