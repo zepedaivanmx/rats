@@ -35,7 +35,7 @@ func _cancelar_ataque() -> void:
 	enemigo_objetivo = null
 	estado_actual = estado_previo
 
-# --- LÓGICA OFENSIVA (MORDIDA) ---
+# --- LÓGICA OFENSIVA: MORDIDA Y DAÑO ---
 func _procesar_ataque(delta: float) -> void:
 	if not is_instance_valid(enemigo_objetivo) or (enemigo_objetivo.get("esta_muerto") == true):
 		_cancelar_ataque()
@@ -46,11 +46,11 @@ func _procesar_ataque(delta: float) -> void:
 		_mover_hacia_objetivo(enemigo_objetivo.global_position)
 	else:
 		velocity.x = 0
-		velocity.z = 0 # Se detiene para morder
+		velocity.z = 0 
 
 	cooldown_ataque -= delta
 	if cooldown_ataque <= 0.0 and dist <= 1.5:
-		print("Lagarto MUERDE al enemigo!")
+		print("¡Lagarto muerde al enemigo!")
 		if enemigo_objetivo.has_method("recibir_dano"):
-			enemigo_objetivo.recibir_dano(20.0) # Aplica 20 de daño base
-		cooldown_ataque = 1.0 # Muerde 1 vez por segundo
+			enemigo_objetivo.recibir_dano(25.0) # Daño directo al HP del enemigo
+		cooldown_ataque = 1.0

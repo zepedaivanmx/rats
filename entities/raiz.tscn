@@ -1,5 +1,7 @@
 [gd_scene format=3 uid="uid://b0ylbd5nt1t1y"]
 
+[ext_resource type="Script" uid="uid://ohcd3h82rh0l" path="res://scripts/raiz_zona.gd" id="1_414fq"]
+
 [sub_resource type="CylinderShape3D" id="CylinderShape3D_rk2y6"]
 height = 0.1
 radius = 3.0
@@ -9,6 +11,8 @@ left_to_right = 0.2
 size = Vector3(1, 1, 6)
 
 [node name="Raiz" type="Area3D" unique_id=811100734]
+collision_mask = 17
+script = ExtResource("1_414fq")
 
 [node name="CollisionShape3D" type="CollisionShape3D" parent="." unique_id=1189401061]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.036557347, 0)
