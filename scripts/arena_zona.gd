@@ -1,33 +1,44 @@
-class_name ArenaZona extends ZonaAmbiental
+class_name ArenaZona
+extends ZonaAmbiental
 
-@export var lagarto_scene: PackedScene
-@export var cantidad_lagartos: int = 1
 @export var distancia_bosque_profundo: float = 35.0
+var animal_habilitado: bool = false
+var gestando_animal: bool = false
 
-func _ready() -> void:
-	super()
+@onready var lagarto_unico: AliadoBase = get_node_or_null("Lagarto")
+
+func _inicializar_zona() -> void:
 	tipo_de_zona = TipoZona.ARENA
 
+# Solo acepta 1 cadáver en toda la partida (bloquea desde que inicia la gestación)
+func acepta(obj: Node3D) -> bool:
+	return not animal_habilitado and not gestando_animal and super(obj)
+
+func recibir_recolectable(obj: Node3D) -> void:
+	if acepta(obj):
+		gestando_animal = true
+		super(obj)
+
 func _al_completar_gestacion(cadaver: Node3D) -> void:
-	cadaver.queue_free()
+	if is_instance_valid(cadaver):
+		cadaver.queue_free()
 	
-	if not lagarto_scene:
-		push_warning("ArenaZona: falta asignar lagarto_scene")
+	if animal_habilitado or not is_instance_valid(lagarto_unico):
 		return
+	
+	animal_habilitado = true
+	var pos_spawn := _calcular_pos_bosque_profundo()
+	lagarto_unico.activar_desde_bosque_profundo(pos_spawn, self.global_position)
+	
+	
+func _calcular_pos_bosque_profundo() -> Vector3:
+	var arbol := get_tree().get_first_node_in_group("CentralTree")
+	# Declaramos explícitamente el tipo Vector3 para evitar errores de inferencia en el parser
+	var centro: Vector3 = Vector3.ZERO
+	if is_instance_valid(arbol):
+		centro = arbol.global_position
 		
-	# Obtenemos la madriguera para usarla como punto central y calcular el borde del bosque
-	var arbol = get_tree().get_first_node_in_group("CentralTree")
-	var centro = arbol.global_position if arbol else Vector3.ZERO
-		
-	for i in cantidad_lagartos:
-		var lagarto = lagarto_scene.instantiate()
-		get_tree().current_scene.add_child(lagarto)
-		
-		# Aparece en un anillo aleatorio simulando el bosque profundo
-		var angulo = randf() * TAU
-		var pos_spawn = centro + Vector3(cos(angulo), 0.5, sin(angulo)) * distancia_bosque_profundo
-		lagarto.global_position = pos_spawn
-		
-		# POO: Se utiliza la función base heredada de AliadoBase
-		if lagarto.has_method("caminar_hacia"):
-			lagarto.caminar_hacia(self.global_position)
+	var dir_zona := (global_position - centro)
+	dir_zona.y = 0.0
+	dir_zona = dir_zona.normalized() if dir_zona.length_squared() > 0.01 else Vector3.LEFT
+	return centro + (dir_zona * distancia_bosque_profundo) + Vector3(0.0, 0.5, 0.0)

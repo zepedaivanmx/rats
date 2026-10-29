@@ -10,11 +10,15 @@ var edad: float = 0.0
 var maduro: bool = false
 @onready var malla: MeshInstance3D = $MeshInstance3D
 
+
 func _inicializar_recolectable() -> void:
-	modo_recogida = ModoRecogida.INVENTARIO
+	# Se carga uno por uno en la boca igual que el mineral
+	modo_recogida = ModoRecogida.BOCA
 	collision_layer = CAPA_RECOLECTABLE
-	collision_mask = 1   # solo choca con el suelo
+	collision_mask = 1 # Solo choca con el suelo
 	valor = valor_base
+	if not is_in_group("hongo"):
+		add_to_group("hongo")
 
 # Solo corre en el suelo: dentro del inventario el reloj se congela
 func _procesar_fisica_libre(delta: float) -> void:

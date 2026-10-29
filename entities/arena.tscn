@@ -14,6 +14,13 @@ outer_radius = 3.0
 [node name="Arena" type="Area3D" unique_id=472723614]
 collision_mask = 17
 script = ExtResource("1_vhc2j")
+lagarto_scene = ExtResource("1_p4f75")
+cantidad_lagartos = null
+distancia_bosque_profundo = null
+tipo_de_zona = null
+entrega_automatica = null
+reclama_cadaveres = null
+duracion_gestacion = null
 
 [node name="CollisionShape3D" type="CollisionShape3D" parent="." unique_id=2040811562]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.036557347, 0)

@@ -146,43 +146,35 @@ func desaparecer() -> void:
 	
 ## CONFIRMAR CAPA CADAVER
 
-func reclamar_por_zona() -> void:
-	sera_absorbido = false # la zona tiene prioridad sobre el árbol
 
-	# --- NUEVA LÓGICA DE DISTANCIA ---
-	if arbol_objetivo and is_instance_valid(arbol_objetivo):
-		var distancia = global_position.distance_to(arbol_objetivo.global_position)
-		if distancia <= radio_absorcion_arbol:
-			sera_absorbido = true
-		else:
-			sera_absorbido = false
-			#iniciar_putrefaccion() # Comienza el ciclo de descomposición
+#########################################################
+##########################################################
+
+func reclamar_por_zona() -> void:
+	# La zona tiene prioridad absoluta sobre la absorción del árbol
+	sera_absorbido = false
 
 func finalizar_muerte() -> void:
-	# Informa al árbol si murió dentro del área (ahora usamos la bandera sera_absorbido)
 	if arbol_objetivo and is_instance_valid(arbol_objetivo) and sera_absorbido:
 		if arbol_objetivo.has_method("absorber_cadaver"):
 			arbol_objetivo.absorber_cadaver()
-				
 	queue_free()
+
 # ==========================================
 # OVERRIDE DE TRANSPORTE
 # ==========================================
 func ser_recogido(por_quien: Node3D) -> void:
-	super(por_quien) # Llama la lógica base de Recolectable
-	cancelar_putrefaccion()       # Si la rata lo levanta, deja de pudrirse
+	super(por_quien)
+	cancelar_putrefaccion()
 
 # ==========================================
-# SISTEMA DE PUTREFACCIÓN (Fase 1 - Enemigo)
+# SISTEMA DE PUTREFACCIÓN
 # ==========================================
-func iniciar_putrefaccion() -> void:
-	# Solo se pudre si está muerto y no ha empezado el proceso ya
+func iniciar_putrefaccion(duracion: float = 10.0) -> void:
 	if esta_pudriendose or not esta_muerto:
 		return
-	
 	esta_pudriendose = true
-
-	# Instanciamos el Timer dinámicamente si no existe
+	
 	if not timer_putrefaccion:
 		timer_putrefaccion = Timer.new()
 		timer_putrefaccion.name = "TimerPutrefaccion"
@@ -190,8 +182,8 @@ func iniciar_putrefaccion() -> void:
 		timer_putrefaccion.timeout.connect(_on_putrefaccion_completada)
 		add_child(timer_putrefaccion)
 	
-	timer_putrefaccion.start(10.0)
-	print("El cadáver " + name + " empieza a pudrirse.")
+	timer_putrefaccion.start(duracion)
+	print("El cadáver " + name + " empieza a gestarse durante " + str(duracion) + " s.")
 
 func cancelar_putrefaccion() -> void:
 	if timer_putrefaccion:
@@ -199,5 +191,5 @@ func cancelar_putrefaccion() -> void:
 	esta_pudriendose = false
 
 func _on_putrefaccion_completada() -> void:
-	print("El cadáver " + name + " se ha podrido por completo.")
-	se_ha_pudrido.emit(self) # Levanta la bandera para notificar a la Zona Ambiental
+	print("El cadáver " + name + " completó su gestación.")
+	se_ha_pudrido.emit(self)

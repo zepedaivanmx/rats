@@ -1,59 +1,19 @@
-class_name Escarabajo extends AliadoBase
+class_name Escarabajo
+extends AliadoBase
 
-var cooldown_ataque: float = 0.0
-var enemigo_objetivo: Node3D = null
-var estado_previo: EstadoAliado = EstadoAliado.IDLE
-
-@onready var area_ataque: Area3D = $AreaAtaque
+@export var fuerza_empuje: float = 35.0
 
 func _inicializar_aliado() -> void:
-	velocidad = 2.5   # Tanque lento
-	hp_maximo = 100.0 # Mucha vida
+	velocidad = 2.5
+	hp_maximo = 100.0
 	hp = hp_maximo
-	
-	if area_ataque:
-		area_ataque.body_entered.connect(_on_enemigo_detectado)
-		area_ataque.body_exited.connect(_on_enemigo_perdido)
+	rango_ataque = 2.0
+	intervalo_ataque = 2.0
 
-func _al_llegar_a_destino() -> void:
-	seguir_al_jugador()
-
-# --- SISTEMA DE DETECCIÓN SENSORIAL ---
-func _on_enemigo_detectado(body: Node3D) -> void:
-	if body.is_in_group("enemy") and estado_actual != EstadoAliado.ATACANDO:
-		if body.has_method("esta_muerto") and body.esta_muerto: return
-		
-		enemigo_objetivo = body
-		estado_previo = estado_actual
-		estado_actual = EstadoAliado.ATACANDO
-
-func _on_enemigo_perdido(body: Node3D) -> void:
-	if body == enemigo_objetivo:
-		_cancelar_ataque()
-
-func _cancelar_ataque() -> void:
-	enemigo_objetivo = null
-	estado_actual = estado_previo
-
-# --- LÓGICA OFENSIVA (EMPUJE) ---
-func _procesar_ataque(delta: float) -> void:
-	if not is_instance_valid(enemigo_objetivo) or (enemigo_objetivo.get("esta_muerto") == true):
-		_cancelar_ataque()
-		return
-
-	var dist = global_position.distance_to(enemigo_objetivo.global_position)
-	if dist > 2.0: # Mantiene más distancia que el lagarto
-		_mover_hacia_objetivo(enemigo_objetivo.global_position)
-	else:
-		velocity.x = 0
-		velocity.z = 0 
-
-	cooldown_ataque -= delta
-	if cooldown_ataque <= 0.0 and dist <= 2.2:
-		print("Escarabajo EMPUJA al enemigo!")
-		if enemigo_objetivo.has_method("recibir_impacto"):
-			# Vector que aleja al enemigo del escarabajo
-			var dir_empuje = global_position.direction_to(enemigo_objetivo.global_position)
-			dir_empuje.y = 0.2 # Ligera elevación para desestabilizar físicas
-			enemigo_objetivo.recibir_impacto(dir_empuje * 35.0) # Fuerza masiva de knockback
-		cooldown_ataque = 2.0 # Empuja cada 2 segundos
+# El escarabajo empuja a los enemigos
+func _ejecutar_ataque_especifico(objetivo: Node3D) -> void:
+	print("¡Escarabajo EMPUJA al enemigo!")
+	if objetivo.has_method("recibir_impacto"):
+		var dir_empuje := global_position.direction_to(objetivo.global_position)
+		dir_empuje.y = 0.2
+		objetivo.recibir_impacto(dir_empuje.normalized() * fuerza_empuje)

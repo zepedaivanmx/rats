@@ -4,6 +4,11 @@ extends PrimordialFather
 var arrastrando_rata: bool = false
 @onready var nav_agent: NavigationAgent3D = $NavigationAgent3D
 
+func _ready() -> void:
+	super()
+	max_hp = 35.0 # Muere exactamente de 1 golpe de cola (35 de daño)
+	hp = max_hp
+
 # Sobrescribimos la función virtual del padre para definir su movimiento específico
 func _mover_y_actuar(_delta: float) -> void:
 	if not arbol_objetivo or not rata_objetivo: return

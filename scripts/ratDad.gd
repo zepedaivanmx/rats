@@ -51,6 +51,12 @@ func _physics_process(delta: float) -> void:
 	# 1. Aplicar Gravedad
 	if not is_on_floor():
 		velocity.y -= gravity * delta
+	if tiempo_aturdido > 0.0:
+		tiempo_aturdido -= delta
+		velocity.x = vector_arrastre.x
+		velocity.z = vector_arrastre.z
+		move_and_slide()
+		return
 
 	# 2. Mecánica de Salto
 	if Input.is_action_just_pressed("ui_accept") and is_on_floor():
@@ -131,119 +137,75 @@ func _physics_process(delta: float) -> void:
 
 # --- LÓGICA DE ATAQUES MODIFICADA ---
 # Devuelven un 'bool' para avisar si impactaron a alguien
+var tiempo_aturdido: float = 0.0
+
+func aplicar_aturdimiento(duracion: float) -> void:
+	tiempo_aturdido = max(tiempo_aturdido, duracion)
+	print("¡La rata ha sido aturdida por ", duracion, " segundos!")
+
 func ejecutar_mordida() -> bool:
-	if is_instance_valid(objeto_cargado):
-		return false # Si tiene algo en la boca, bloquea la mordida
-		
-	var mordio_algo = false
+	if is_instance_valid(objeto_cargado) or tiempo_aturdido > 0.0:
+		return false # Si lleva algo en la boca o está aturdida, no muerde
 	
+	var mordio_algo = false
 	for body in area_mordida.get_overlapping_bodies():
-		if body == self: continue 
-		# La mordida es solo ataque: ignora recolectables y cadáveres
+		if body == self:
+			continue
 		if body is Recolectable and not (body is PrimordialFather):
 			continue
 		if body is PrimordialFather and body.esta_muerto:
 			continue
-		# LÓGICA ANTERIOR DE ENEMIGOS Y POWER UPS DIRECTOS
-		var grupos = body.get_groups()
-		var es_objeto_especial = false
 		
-		for grupo in grupos:
-			match String(grupo):
-				"CentralTree":
-					if not cola_afilada:
-						cola_afilada = true
-						print("¡Obtuviste: Cola Afilada!")
-						es_objeto_especial = true
-				"serpiente":
-					if not cola_venenosa:
-						cola_venenosa = true
-						print("¡Obtuviste: Cola Venenosa!")
-					if body.has_method("desaparecer"): body.desaparecer()
-					else: body.queue_free()
-					es_objeto_especial = true
-					
-		if es_objeto_especial:
+		# Morder ya NO otorga power-ups; solo hace daño leve cuerpo a cuerpo
+		if body.is_in_group("enemy") and body.has_method("recibir_dano"):
+			body.recibir_dano(20.0)
 			mordio_algo = true
-		elif body.has_method("desaparecer") and body.is_in_group("enemy"):
-			body.desaparecer()
-			mordio_algo = true
-
+			
 	if mordio_algo:
 		romper_arrastre()
-		return true 
-
+		return true
 	return false
 
-# NUEVA FUNCIÓN: Las zonas ambientales llamarán a esto cuando entres en ellas
 func entregar_objeto() -> Node3D:
 	if not is_instance_valid(objeto_cargado):
 		return null
-		
 	var obj = objeto_cargado
 	objeto_cargado = null
-	# Aquí el objeto queda libre, la zona decide si destruirlo para darte el bonus
+	speed = velocidad_base
 	return obj
 
 func ejecutar_colazo() -> bool:
+	if tiempo_aturdido > 0.0:
+		return false
 	var acerto_golpe = false
-	
 	for body in area_colazo.get_overlapping_bodies():
-		if body is CharacterBody3D and body != self:
-			
-			# Valores por defecto del ataque
+		if body is CharacterBody3D and body != self and body.is_in_group("enemy"):
+			if body.get("esta_muerto") == true:
+				continue
 			var fuerza_base = 15.0
-			var aplicar_sangrado = false
-			var aplicar_veneno = false
+			var dano_colazo = 35.0 # Suficiente para matar a la Hormiga base (35 HP) de 1 golpe de cola
+			var aplicar_sangrado = cola_afilada
+			var aplicar_veneno = cola_venenosa
 			
-			# Evaluamos todas las combinaciones posibles usando un arreglo: [Afilada, Venenosa, Pesada]
-			match [cola_afilada, cola_venenosa, cola_pesada]:
-				
-				[false, false, false]: 
-					pass # Cola normal, usamos los valores por defecto
-					
-				[true, false, false]: # SOLO AFILADA
-					aplicar_sangrado = true
-					
-				[false, true, false]: # SOLO VENENOSA
-					aplicar_veneno = true
-					
-				[false, false, true]: # SOLO PESADA
-					fuerza_base = 30.0 # Doble de empuje
-					
-				[true, true, false]: # AFILADA + VENENOSA
-					aplicar_sangrado = true
-					aplicar_veneno = true
-					# Aquí podrías poner lógica extra exclusiva de esta combinación
-					
-				[true, false, true]: # AFILADA + PESADA
-					fuerza_base = 30.0
-					aplicar_sangrado = true
-					
-				[false, true, true]: # VENENOSA + PESADA
-					fuerza_base = 30.0
-					aplicar_veneno = true
-					
-				[true, true, true]: # ¡LAS TRES JUNTAS!
-					fuerza_base = 40.0 # Un bonus extra por tener las tres
-					aplicar_sangrado = true
-					aplicar_veneno = true
-
-			# --- APLICAMOS LOS EFECTOS AL ENEMIGO ---
+			if cola_pesada:
+				fuerza_base = 30.0
+				if cola_afilada and cola_venenosa:
+					fuerza_base = 40.0
+			
 			if aplicar_sangrado and body.has_method("aplicar_sangrado"):
 				body.aplicar_sangrado()
-				
 			if aplicar_veneno and body.has_method("aplicar_veneno"):
 				body.aplicar_veneno()
-				
 			if body.has_method("recibir_impacto"):
 				var empuje = (body.global_position - global_position).normalized() * fuerza_base
 				body.recibir_impacto(empuje)
-				acerto_golpe = true
-				
+			if body.has_method("recibir_dano"):
+				body.recibir_dano(dano_colazo)
+			
+			acerto_golpe = true
+			
 	if acerto_golpe:
 		romper_arrastre()
-		
 	return acerto_golpe
 
 # --- MÉTODOS DE CONTROL DE ARRASTRE ---
